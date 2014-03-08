@@ -1,0 +1,28 @@
+{
+    "name": "erickmerchant/wright",
+    "description": "a static site generator",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erick Merchant",
+            "email": "erickmerchant@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5",
+        "aura/cli": "2.*@dev",
+        "imagine/imagine": "~0.5",
+        "jbroadway/urlify": "~1.0",
+        "league/flysystem": "~0.2",
+        "michelf/php-markdown": "~1.4",
+        "michelf/php-smartypants": "~1.6@dev",
+        "symfony/yaml": "~2.3",
+        "twig/twig": "~1.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wright\\": "app/src/",
+            "Wright\\Test\\": "app/test/"
+        }
+    }
+}

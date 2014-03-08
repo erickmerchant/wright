@@ -1,0 +1,83 @@
+<?php namespace Wright\Command;
+
+use Aura\Cli\Status;
+use Aura\Cli\Stdio;
+use Wright\Data\DataInterface;
+use League\Flysystem\Filesystem;
+
+class MoveCommand implements CommandInterface
+{
+    protected $data;
+
+    public function __construct(DataInterface $data)
+    {
+        $this->data = $data;
+    }
+
+    public function getDescription()
+    {
+        return 'move an entry';
+    }
+
+    public function getOptions()
+    {
+        return [
+            'date,d' => [
+                'description' => 'add the current date to the file name'
+            ],
+            'title,t:' => [
+                'description' =>'change the title of the entry'
+            ]
+        ];
+    }
+
+    public function getArguments()
+    {
+        return [
+            'source' => [
+                'description' =>'the entry to move'
+            ],
+            'target' => [
+                'description' =>'the directory to move it to (the collection)'
+            ]
+        ];
+    }
+
+    public function execute(Stdio $stdio, array $params = [])
+    {
+        $match = preg_match('/^(?:.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.|[0-9]+\.|)([^\/]*)$/', $params['source'], $matches);
+
+        $matches[1] = trim($matches[1], '.');
+
+        if ($params['--date']) {
+
+            $matches[1] = (new \DateTime)->format('Y-m-d');
+        }
+
+        if ($params['--title']) {
+
+            $matches[2] = \URLify::filter($params['--title']);
+        }
+
+        $file = $params['target'] ? $params['target'] . '/' : '';
+
+        $file .= $params['--date'] ? $matches[1] . '.' : '';
+
+        $file .= $matches[2];
+
+        $this->data->move($params['source'], $file);
+
+        if ($params['--title']) {
+
+            $data = $this->data->read($file);
+
+            $data['title'] = $params['--title'];
+
+            $this->data->write($file, $data);
+        }
+
+        $stdio->outln('<<magenta>>' . $params['source'] . ' moved to ' . $file . '<<reset>>');
+
+        return Status::SUCCESS;
+    }
+}
