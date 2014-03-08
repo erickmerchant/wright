@@ -1,7 +1,9 @@
 {
     "name": "erickmerchant/wright",
     "description": "a static site generator",
+    "type": "library",
     "license": "MIT",
+    "version": "0.9.0",
     "authors": [
         {
             "name": "Erick Merchant",
