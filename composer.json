@@ -21,8 +21,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Wright\\": "app/src/",
-            "Wright\\Test\\": "app/test/"
+            "Wright\\": "src/",
+            "Wright\\Test\\": "test/"
         }
     }
 }
