@@ -10,12 +10,12 @@
     ],
     "require": {
         "php": ">=5.5",
-        "aura/cli": "2.*@dev",
+        "aura/cli": "2.*",
         "imagine/imagine": "~0.5",
         "jbroadway/urlify": "~1.0",
         "league/flysystem": "~0.2",
         "michelf/php-markdown": "~1.4",
-        "michelf/php-smartypants": "~1.6@dev",
+        "michelf/php-smartypants": "~1.6",
         "symfony/yaml": "~2.3",
         "twig/twig": "~1.14"
     },
