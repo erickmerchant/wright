@@ -79,6 +79,8 @@ class PublishCommand implements CommandInterface
 
             foreach ($pages as $page) {
 
+                $defaults['permalink'] = $page['permalink'];
+
                 if (substr($page['permalink'], -1) == '/') {
                     $page['permalink'] .= 'index.html';
                 }
