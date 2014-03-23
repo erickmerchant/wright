@@ -21,14 +21,22 @@ WRIGHT;
 
     protected $commands;
 
-    public function __construct(array $commands = [])
+    protected $stdio;
+
+    protected $context;
+
+    public function __construct(Stdio $stdio, Context $context, array $commands = [])
     {
         $this->commands = $commands;
+
+        $this->stdio = $stdio;
+
+        $this->context = $context;
     }
 
-    public function run(Context $context, Stdio $stdio)
+    public function run()
     {
-        $getopt = $context->getopt(['--help,h']);
+        $getopt = $this->context->getopt(['--help,h']);
 
         $command_name = $getopt->get(1);
 
@@ -46,24 +54,24 @@ WRIGHT;
 
                         foreach ($errors as $error) {
 
-                            $stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
+                            $this->stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
                         }
 
                         $status = Status::USAGE;
 
                     } else {
 
-                        $stdio->outln('<<magenta>>Description:<<reset>>');
+                        $this->stdio->outln('<<magenta>>Description:<<reset>>');
 
-                        $stdio->outln($this->commands[$command_name]->getDescription());
+                        $this->stdio->outln($this->commands[$command_name]->getDescription());
 
                         $arguments = $this->commands[$command_name]->getArguments();
 
                         $options = $this->commands[$command_name]->getOptions();
 
-                        $stdio->outln('');
+                        $this->stdio->outln('');
 
-                        $stdio->outln('<<magenta>>Usage:<<reset>>');
+                        $this->stdio->outln('<<magenta>>Usage:<<reset>>');
 
                         $usage[] = './wright ' . $command_name;
 
@@ -77,13 +85,13 @@ WRIGHT;
                             $usage[] = '[arguments]';
                         }
 
-                        $stdio->outln(implode(' ', $usage));
+                        $this->stdio->outln(implode(' ', $usage));
 
                         if (count($options)) {
 
-                            $stdio->outln('');
+                            $this->stdio->outln('');
 
-                            $stdio->outln('<<magenta>>Options:<<reset>>');
+                            $this->stdio->outln('<<magenta>>Options:<<reset>>');
 
                             $longest = max(array_map('strlen', array_keys($options)));
 
@@ -91,15 +99,15 @@ WRIGHT;
 
                                 $description = isset($val['description']) ? $val['description'] : '';
 
-                                $stdio->outln('<<cyan>>' . str_pad($key, $longest) . '<<reset>>  ' . $description);
+                                $this->stdio->outln('<<cyan>>' . str_pad($key, $longest) . '<<reset>>  ' . $description);
                             }
                         }
 
                         if (count($arguments)) {
 
-                            $stdio->outln('');
+                            $this->stdio->outln('');
 
-                            $stdio->outln('<<magenta>>Arguments:<<reset>>');
+                            $this->stdio->outln('<<magenta>>Arguments:<<reset>>');
 
                             $longest = max(array_map('strlen', array_keys($arguments)));
 
@@ -107,7 +115,7 @@ WRIGHT;
 
                                 $description = isset($val['description']) ? $val['description'] : '';
 
-                                $stdio->outln('<<cyan>>' . str_pad($key, $longest) . '<<reset>>  ' . $description);
+                                $this->stdio->outln('<<cyan>>' . str_pad($key, $longest) . '<<reset>>  ' . $description);
                             }
                         }
 
@@ -118,7 +126,7 @@ WRIGHT;
 
                     $params = [];
 
-                    $getopt = $context->getopt(array_keys($this->commands[$command_name]->getOptions()));
+                    $getopt = $this->context->getopt(array_keys($this->commands[$command_name]->getOptions()));
 
                     $errors = false;
 
@@ -156,7 +164,7 @@ WRIGHT;
 
                         foreach ($errors as $error) {
 
-                            $stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
+                            $this->stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
                         }
 
                         $k = 2;
@@ -167,7 +175,7 @@ WRIGHT;
 
                                 $name = isset($argument_name) ? $argument_name : 'argument ' . $k;
 
-                                $stdio->errln('<<redbg white>>The argument \'' . $name . '\' is required.<<reset>>');
+                                $this->stdio->errln('<<redbg white>>The argument \'' . $name . '\' is required.<<reset>>');
 
                                 $errors = true;
                             }
@@ -175,7 +183,7 @@ WRIGHT;
                             $k++;
                         }
 
-                        $stdio->errln('<<cyan>>Try running ./wright ' . $command_name . ' --help<<reset>>');
+                        $this->stdio->errln('<<cyan>>Try running ./wright ' . $command_name . ' --help<<reset>>');
 
                         $status = Status::USAGE;
 
@@ -183,18 +191,18 @@ WRIGHT;
 
                         $start_time = microtime(true);
 
-                        $status = $this->commands[$command_name]->execute($stdio, $params);
+                        $status = $this->commands[$command_name]->execute($this->stdio, $params);
 
                         if ($status == Status::SUCCESS) {
 
-                            $stdio->outln('<<cyan>>' . $command_name . ' ran in ' . $this->getTime($start_time) . ' using ' . $this->getMemoryUsage() . '<<reset>>');
+                            $this->stdio->outln('<<cyan>>' . $command_name . ' ran in ' . $this->getTime($start_time) . ' using ' . $this->getMemoryUsage() . '<<reset>>');
                         }
                     }
                 }
 
             } else {
 
-                $stdio->errln('<<redbg white>>There is no command \'' . $command_name . '\'<<reset>>');
+                $this->stdio->errln('<<redbg white>>There is no command \'' . $command_name . '\'<<reset>>');
             }
 
         } else {
@@ -205,53 +213,53 @@ WRIGHT;
 
                 foreach ($errors as $error) {
 
-                    $stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
+                    $this->stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
                 }
 
                 $status = Status::USAGE;
 
             } else {
 
-                $stdio->outln('<<magenta bold>>' . self::LOGO . '<<reset>>');
+                $this->stdio->outln('<<magenta bold>>' . self::LOGO . '<<reset>>');
 
-                $stdio->outln('a static site generator');
+                $this->stdio->outln('a static site generator');
 
-                $stdio->outln('');
+                $this->stdio->outln('');
 
-                $stdio->outln('<<magenta>>Usage:<<reset>>');
+                $this->stdio->outln('<<magenta>>Usage:<<reset>>');
 
-                $stdio->outln('./wright command [options] [arguments]');
+                $this->stdio->outln('./wright command [options] [arguments]');
 
-                $stdio->outln('');
+                $this->stdio->outln('');
 
-                $stdio->outln('<<magenta>>Commands:<<reset>>');
+                $this->stdio->outln('<<magenta>>Commands:<<reset>>');
 
                 $longest = max(array_map('strlen', array_keys($this->commands)));
 
                 foreach ($this->commands as $command_name => $command) {
 
-                    $stdio->outln('<<cyan>>' . str_pad($command_name, $longest) . '<<reset>>  ' . $command->getDescription());
+                    $this->stdio->outln('<<cyan>>' . str_pad($command_name, $longest) . '<<reset>>  ' . $command->getDescription());
                 }
 
-                $stdio->outln('');
+                $this->stdio->outln('');
 
-                $stdio->outln('<<magenta>>Options:<<reset>>');
+                $this->stdio->outln('<<magenta>>Options:<<reset>>');
 
-                $stdio->outln('<<cyan>>--help,h<<reset>>  get a command\'s usage');
+                $this->stdio->outln('<<cyan>>--help,h<<reset>>  get a command\'s usage');
 
-                $stdio->outln('* Each command may have additional options.');
+                $this->stdio->outln('* Each command may have additional options.');
 
-                $stdio->outln('');
+                $this->stdio->outln('');
 
-                $stdio->outln('<<magenta>>Arguments:<<reset>>');
+                $this->stdio->outln('<<magenta>>Arguments:<<reset>>');
 
-                $stdio->outln('Each command may have arguments.');
+                $this->stdio->outln('Each command may have arguments.');
 
-                $stdio->outln('');
+                $this->stdio->outln('');
 
-                $stdio->outln('<<magenta>>Example:<<reset>>');
+                $this->stdio->outln('<<magenta>>Example:<<reset>>');
 
-                $stdio->outln('./wright foo --help');
+                $this->stdio->outln('./wright foo --help');
 
                 $status = Status::USAGE;
             }
