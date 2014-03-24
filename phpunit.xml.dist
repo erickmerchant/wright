@@ -10,7 +10,6 @@
          stopOnFailure="false"
          syntaxCheck="false"
          bootstrap="./vendor/autoload.php"
-         strict="true"
 >
     <testsuites>
         <testsuite name="Wright Test Suite">
