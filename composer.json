@@ -21,6 +21,7 @@
         "symfony/yaml": "~2.3",
         "twig/twig": "~1.14"
     },
+    "bin": ["bin/wright"],
     "autoload": {
         "psr-4": {
             "Wright\\": "src/",

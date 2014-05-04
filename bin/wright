@@ -1,0 +1,51 @@
+#!/usr/bin/env php
+<?php
+
+use Wright\Application;
+use Wright\DI\Container;
+use Aura\Cli\CliFactory;
+use Aura\Cli\Status;
+
+error_reporting(E_ALL);
+
+set_error_handler(function($severity, $message, $filename, $lineno) {
+
+    if(error_reporting() & $severity)
+    {
+        throw new \ErrorException($message, 0, $severity, $filename, $lineno);
+    }
+});
+
+// chdir(__DIR__);
+
+require_once './vendor/autoload.php';
+
+try
+{
+    $container = new Container;
+
+    foreach(glob(__DIR__.'/includes/*.php') as $include)
+    {
+        require_once $include;
+    }
+
+    $application = $container->resolve(Application::class);
+
+    $application->run();
+}
+catch(\Exception $e)
+{
+    $cli_factory = new CliFactory;
+
+    $stdio = $cli_factory->newStdio();
+
+    $i = 0;
+
+    do
+    {
+        $stdio->outln('<<redbg white>> [' . get_class($e) . '] ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() . '<<reset>>');
+    }
+    while($e = $e->getPrevious());
+
+    exit(STATUS::FAILURE);
+}
