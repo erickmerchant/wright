@@ -2,7 +2,7 @@
 
 interface DataInterface extends \Traversable
 {
-    public function write($file, $data, $force = true);
+    public function write($file, $data);
 
     public function read($file);
 

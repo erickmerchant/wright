@@ -29,15 +29,13 @@ class YamlSettings implements SettingsInterface
      *
      * @param  string  $file     The file name
      * @param  array   $settings Settings to write to the file.
-     * @param  boolean $force    If the file exists, should it be overwritten.
      * @return void
      */
-    public function write($file, $settings, $force = true)
+    public function write($file, $settings)
     {
         /**
          * @todo validate that $file is a string
          * @todo validate that $settings is a string
-         * @todo validate that $force is a boolean
          */
 
         $settings = json_decode(json_encode($settings), true);

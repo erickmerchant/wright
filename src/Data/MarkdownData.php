@@ -79,15 +79,13 @@ class MarkdownData implements \IteratorAggregate, DataInterface
      *
      * @param  string  $file  The file name
      * @param  array   $data  Data to write to the file.
-     * @param  boolean $force If the file exists, should it be overwritten.
      * @return void
      */
-    public function write($file, $data, $force = true)
+    public function write($file, $data)
     {
         /**
          * @todo validate that $file is a string
          * @todo validate that $data is a string
-         * @todo validate that $force is a boolean
          */
 
         $data = json_decode(json_encode($data), true);

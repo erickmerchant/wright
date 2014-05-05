@@ -16,8 +16,7 @@ interface SettingsInterface
      *
      * @param  string  $file     The file name
      * @param  array   $settings settings to write to the file.
-     * @param  boolean $force    If the file exists, should it be overwritten.
      * @return void
      */
-    public function write($file, $settings, $force = true);
+    public function write($file, $settings);
 }
