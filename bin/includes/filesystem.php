@@ -8,7 +8,7 @@ $container->bind('base_filesystem', Filesystem::class, [
 ]);
 
 $container->bind('site_filesystem', Filesystem::class, [
-    'adapter' => $container->definition(Local::class, [ 'root' => getcwd() . '/../erickmerchant.github.io/' ])
+    'adapter' => $container->definition(Local::class, [ 'root' => getcwd() . '/site/' ])
 ]);
 
 $container->bind('data_filesystem', Filesystem::class, [
