@@ -48,6 +48,24 @@ class MakeCommand implements CommandInterface
 
     public function execute(Stdio $stdio, array $params = [])
     {
+        if (strpos($params['--target'], 'data/') !== 0) {
+            throw new \DomainException('The --target must be in the data directory.');
+        }
+
+        $params['--target'] = substr(dirname($params['--target']), strlen('data/')) . '/' . basename($params['--target'], '.md');
+
+        if (!empty($params['--related'])) {
+
+            foreach ($params['--related'] as $key => $related) {
+
+                if (strpos($related, 'data/') !== 0) {
+                    throw new \DomainException('Each --related must be in the data directory.');
+                }
+
+                $params['--related'][$key] = substr(dirname($related), strlen('data/')) . '/' . basename($related, '.md');
+            }
+        }
+
         $data = [];
 
         foreach (['title', 'summary', '--related'] as $param_key) {
