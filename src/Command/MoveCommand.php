@@ -3,7 +3,6 @@
 use Aura\Cli\Status;
 use Aura\Cli\Stdio;
 use Wright\Data\DataInterface;
-use League\Flysystem\Filesystem;
 
 class MoveCommand implements CommandInterface
 {
@@ -45,6 +44,18 @@ class MoveCommand implements CommandInterface
 
     public function execute(Stdio $stdio, array $params = [])
     {
+        if (strpos($params['source'], 'data/') !== 0) {
+            throw new \DomainException('The source must be in the data directory.');
+        }
+
+        if (strpos($params['target'], 'data/') !== 0) {
+            throw new \DomainException('The target must be in the data directory.');
+        }
+
+        $params['source'] = substr(dirname($params['source']), strlen('data/')) . '/' . basename($params['source'], '.md');
+
+        $params['target'] = substr(dirname($params['target']), strlen('data/')) . '/' . basename($params['target'], '.md');
+
         $match = preg_match('/^(?:.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.|[0-9]+\.|)([^\/]*)$/', $params['source'], $matches);
 
         $matches[1] = trim($matches[1], '.');
