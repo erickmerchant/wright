@@ -2,8 +2,6 @@
     "name": "erickmerchant/wright",
     "description": "a static site generator",
     "license": "MIT",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "authors": [
         {
             "name": "Erick Merchant",
