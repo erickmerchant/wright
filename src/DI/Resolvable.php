@@ -1,6 +1,6 @@
 <?php namespace Wright\DI;
 
-class Resolvable implements ResolvableInterface
+class Resolvable implements DefinitionInterface
 {
     /**
      * The container.

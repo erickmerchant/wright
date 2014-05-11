@@ -1,6 +1,6 @@
 <?php namespace Wright\DI;
 
-interface ResolvableInterface
+interface DefinitionInterface
 {
     public function resolve();
 }

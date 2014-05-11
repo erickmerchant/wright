@@ -3,19 +3,21 @@
 use Wright\Extensions\Twig;
 
 $container->bind(ViewInterface::class, TwigView::class, [
-    'twig' => $container->resolvable(function ($container) {
+    'twig' => $container->get('view_twig')
+]);
 
-        $twig_loader = new \Twig_Loader_Filesystem(getcwd() . '/templates');
-
-        $twig = new \Twig_Environment($twig_loader, [
+$container->bind('view_twig', \Twig_Environment::class, [
+        'loader' => $container->definition(\Twig_Loader_Filesystem::class, [
+            'paths' => getcwd() . '/templates'
+        ]),
+        'options' => [
             'cache' => getcwd() . '/cache/twig',
             'auto_reload' => true
-        ]);
+        ]
+    ])
+    ->after(function ($twig) {
 
         $twig->addExtension(new Twig\StandardExtension);
 
         $twig->addExtension(new Twig\DateBatchExtension);
-
-        return $twig;
-    })
-]);
+    });

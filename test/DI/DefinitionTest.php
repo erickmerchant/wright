@@ -55,22 +55,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::withSetter
-     */
-    public function testWithSetter()
-    {
-        $container = new Container;
-
-        $definition = new Definition($container);
-
-        $this->assertAttributeEmpty('setters', $definition);
-
-        $definition->withSetter('setBar', [new Stub\Bar]);
-
-        $this->assertAttributeEquals([['setBar', [new Stub\Bar]]], 'setters', $definition);
-    }
-
-    /**
      * @covers ::resolve
      */
     public function testResolve()
@@ -96,24 +80,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $definition = new Definition($container);
 
         $resolved = $definition->resolve();
-    }
-
-    /**
-     * @covers ::resolve
-     */
-    public function testResolveSetters()
-    {
-        $container = new Container;
-
-        $definition = new Definition($container, Stub\Foo::class);
-
-        $bar = new Stub\Bar;
-
-        $definition->withSetter('setBar', ['bar' => $bar]);
-
-        $resolved = $definition->resolve();
-
-        $this->assertAttributeEquals($bar, 'bar', $resolved);
     }
 
     /**

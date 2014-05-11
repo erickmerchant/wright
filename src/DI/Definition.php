@@ -1,6 +1,6 @@
 <?php namespace Wright\DI;
 
-class Definition implements ResolvableInterface
+class Definition implements DefinitionInterface
 {
     /**
      * The container.
@@ -23,12 +23,7 @@ class Definition implements ResolvableInterface
      */
     protected $args = [];
 
-    /**
-     * The setters that will be called after instantiation.
-     *
-     * @var array Each array will contain 2 elements. The first is a string that is the method. The second is an array of arguments to pass to that method.
-     */
-    protected $setters = [];
+    protected $afters = [];
 
     /**
      * @param Container   $container The container.
@@ -80,16 +75,9 @@ class Definition implements ResolvableInterface
         return $this;
     }
 
-    /**
-     * Set a method to be called after constructing this class along with it's arguments.
-     *
-     * @param  string $method
-     * @param  array  $args
-     * @return self
-     */
-    public function withSetter($method, array $args = [])
+    public function after(\Closure $after)
     {
-        $this->setters[] = [$method, $args];
+        $this->afters[] = $after;
 
         return $this;
     }
@@ -123,12 +111,9 @@ class Definition implements ResolvableInterface
 
         $instance = $reflected_class->newInstanceArgs($args);
 
-        foreach ($this->setters as list($method, $args)) {
-            $reflected_method = $reflected_class->getMethod($method);
+        foreach ($this->afters as $after) {
 
-            $args = $this->resolveArgs($reflected_method, $args);
-
-            $reflected_method->invokeArgs($instance, $args);
+            $after($instance);
         }
 
         return $instance;
@@ -151,7 +136,7 @@ class Definition implements ResolvableInterface
                     if (isset($args[$name])) {
                         $results[$key] = $args[$name];
 
-                        if (is_object($results[$key]) && $results[$key] instanceof ResolvableInterface) {
+                        if (is_object($results[$key]) && $results[$key] instanceof DefinitionInterface) {
 
                             $results[$key] = $results[$key]->resolve();
                         } elseif ($class && is_string($results[$key])) {
@@ -160,7 +145,7 @@ class Definition implements ResolvableInterface
                         } elseif (is_array($results[$key])) {
                             array_walk_recursive($results[$key], function (&$item) {
 
-                                if (is_object($item) && $item instanceof ResolvableInterface) {
+                                if (is_object($item) && $item instanceof DefinitionInterface) {
                                     $item = $item->resolve();
                                 }
                             });
