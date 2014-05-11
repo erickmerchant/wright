@@ -51,6 +51,8 @@ class PublishCommand implements CommandInterface
 
     public function execute(Stdio $stdio, array $params = [])
     {
+        $this->schema->setup();
+
         foreach ($this->base_filesystem->listContents('/', true) as $file) {
 
             if ($file['type'] == 'file') {

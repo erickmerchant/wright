@@ -20,7 +20,10 @@ class Schema
         $this->data = $data;
 
         $this->settings = $settings;
+    }
 
+    public function setup()
+    {
         $this->setupTables();
 
         $this->setupNodes();
