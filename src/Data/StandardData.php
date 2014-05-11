@@ -1,0 +1,148 @@
+<?php namespace Wright\Data;
+
+use Symfony\Component\Yaml\Yaml;
+use Twig_Environment;
+use League\Flysystem\FilesystemInterface;
+use Wright\Converter\ConverterInterface;
+
+class StandardData implements \IteratorAggregate, DataInterface
+{
+    protected $data_filesystem;
+
+    protected $twig;
+
+    protected $yaml;
+
+    protected $converters = [];
+
+    public function __construct(FilesystemInterface $data_filesystem, Twig_Environment $twig, Yaml $yaml)
+    {
+        $this->data_filesystem = $data_filesystem;
+
+        $this->twig = $twig;
+
+        $this->yaml = $yaml;
+    }
+
+    public function addConverter(ConverterInterface $converter)
+    {
+        $this->converters[$converter->getExt()] = $converter;
+    }
+
+    public function getIterator()
+    {
+        $result = [];
+
+        foreach ($this->data_filesystem->listPaths('/', true) as $path) {
+
+            $ext = pathinfo($path, PATHINFO_EXTENSION);
+
+            if (!isset($this->converters[$ext])) {
+
+                continue;
+            }
+
+            $directory = trim(dirname($path), '/');
+
+            $file = trim(basename($path), '/');
+
+            if ($directory == '.') {
+
+                $result[] = $file;
+
+            } else {
+
+                $result[] = $directory . '/' . $file;
+            }
+        }
+
+        return new \ArrayIterator($result);
+    }
+
+    /**
+     * Writes a data file.
+     *
+     * @param  string  $file  The file name
+     * @param  array   $data  Data to write to the file.
+     * @return void
+     */
+    public function write($file, $data)
+    {
+        /**
+         * @todo validate that $file is a string
+         * @todo validate that $data is a string
+         */
+
+        $data = json_decode(json_encode($data), true);
+
+        $data_content = isset($data['content']) ? $data['content'] : '';
+
+        unset($data['content']);
+
+        $data = '---' . PHP_EOL . trim($this->yaml->dump($data, 5)) . PHP_EOL . '---' . PHP_EOL . $data_content;
+
+        $this->data_filesystem->createDir(dirname($file));
+
+        $this->data_filesystem->put($file, $data);
+    }
+
+    /**
+     * Reads a data file.
+     *
+     * @param  string $file A file to read.
+     * @return array  The data read.
+     */
+    public function read($file)
+    {
+        /**
+         * @todo validate that $file is a string
+         */
+
+        $result = [];
+
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+
+        if (isset($this->converters[$ext])) {
+
+            $meta = [];
+
+            $content = '';
+
+            $file_contents = $this->data_filesystem->read($file);
+
+            if ($file_contents) {
+
+                $parts = preg_split('/\-{3}/', $file_contents, 3);
+
+                if (count($parts) === 3) {
+
+                    $meta = $parts[1] ?: [];
+
+                    $content = $parts[2];
+                } else {
+
+                    $content = $file_contents;
+                }
+
+                $result = $this->yaml->parse($meta);
+
+                $template = $this->twig->loadTemplate($content);
+
+                $content = $template->render([]);
+
+                $content = $this->converters[$ext]->convert($content);
+
+                $result['content'] = trim($content);
+            }
+        }
+
+        return $result;
+    }
+
+    public function move($source, $target)
+    {
+        $this->data_filesystem->createDir(dirname($target));
+
+        $this->data_filesystem->rename($source, $target);
+    }
+}

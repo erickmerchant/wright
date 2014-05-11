@@ -25,10 +25,13 @@ class MakeCommand implements CommandInterface
                 'description' => 'the collection to add the entry to'
             ],
             'related,r*:' => [
-                'description' => 'other entries that this one is related to (ommit the .md extension)'
+                'description' => 'other entries that this one is related to'
             ],
             'date,d' => [
                 'description' => 'add the current date to the file name'
+            ],
+            'ext,e' => [
+                'description' => 'the file extension to add. defaults to md'
             ]
         ];
     }
@@ -52,7 +55,7 @@ class MakeCommand implements CommandInterface
             throw new \DomainException('The --target must be in the data directory.');
         }
 
-        $params['--target'] = substr(dirname($params['--target']), strlen('data/')) . '/' . basename($params['--target'], '.md');
+        $params['--target'] = substr($params['--target'], strlen('data/'));
 
         if (!empty($params['--related'])) {
 
@@ -62,7 +65,7 @@ class MakeCommand implements CommandInterface
                     throw new \DomainException('Each --related must be in the data directory.');
                 }
 
-                $params['--related'][$key] = substr(dirname($related), strlen('data/')) . '/' . basename($related, '.md');
+                $params['--related'][$key] = substr(dirname($related), strlen('data/')) . '/' . pathinfo($related, PATHINFO_FILENAME);
             }
         }
 
@@ -89,6 +92,10 @@ class MakeCommand implements CommandInterface
         }
 
         $file .= \URLify::filter($data['title']);
+
+        $file .= $params['--ext'] ? $params['--ext'] : '.md';
+
+        $file = trim($file, '/');
 
         $this->data->write($file, $data);
 

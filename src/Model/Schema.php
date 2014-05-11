@@ -159,7 +159,7 @@ class Schema
 
             $directory = trim(dirname($path), '/');
 
-            $file = basename($path);
+            $file = pathinfo($path, PATHINFO_FILENAME);
 
             $fields = $this->data->read($path);
 

@@ -4,19 +4,20 @@ use Symfony\Component\Yaml\Yaml;
 use Michelf\SmartyPants;
 use Michelf\MarkdownExtra;
 use Wright\Extensions\Twig;
+use Wright\Converter\MarkdownConverter;
 
-$container->bind(DataInterface::class, MarkdownData::class, [
+$container->bind(DataInterface::class, StandardData::class, [
 
         'data_filesystem' => $container->get('data_filesystem'),
 
         'twig' => $container->get('data_twig'),
 
-        'yaml' => $container->definition(Yaml::class),
+        'yaml' => $container->definition(Yaml::class)
+    ])
+    ->after(function($data){
 
-        'markdown' => $container->definition(MarkdownExtra::class),
-
-        'smartypants' => $container->definition(SmartyPants::class)
-    ]);
+        $data->addConverter(new MarkdownConverter(new MarkdownExtra, new SmartyPants));
+    });
 
 
 $container->bind('data_twig', \Twig_Environment::class, [

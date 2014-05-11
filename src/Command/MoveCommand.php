@@ -52,9 +52,9 @@ class MoveCommand implements CommandInterface
             throw new \DomainException('The target must be in the data directory.');
         }
 
-        $params['source'] = substr(dirname($params['source']), strlen('data/')) . '/' . basename($params['source'], '.md');
-
-        $params['target'] = substr(dirname($params['target']), strlen('data/')) . '/' . basename($params['target'], '.md');
+        $params['source'] = substr($params['source'], strlen('data/'));
+        
+        $params['target'] = substr($params['target'], strlen('data/'));
 
         $match = preg_match('/^(?:.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.|[0-9]+\.|)([^\/]*)$/', $params['source'], $matches);
 
@@ -70,7 +70,7 @@ class MoveCommand implements CommandInterface
             $matches[2] = \URLify::filter($params['--title']);
         }
 
-        $file = $params['target'] ? $params['target'] . '/' : '';
+        $file = trim($params['target'], '/') . '/';
 
         $file .= $params['--date'] ? $matches[1] . '.' : '';
 
