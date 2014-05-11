@@ -4,7 +4,6 @@ use Symfony\Component\Yaml\Yaml;
 use Michelf\SmartyPants;
 use Michelf\MarkdownExtra;
 use Wright\Extensions\Twig;
-use Imagine\Gd\Imagine;
 
 $container->bind(DataInterface::class, MarkdownData::class, [
 
