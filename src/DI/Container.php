@@ -63,6 +63,15 @@ class Container
         return $this->definitions[$abstract];
     }
 
+    public function after($abstract, \Closure $after)
+    {
+        $definition = $this->get($abstract);
+
+        $definition->after($after);
+
+        return $definition;
+    }
+
     public function resolve($abstract)
     {
         /**

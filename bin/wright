@@ -29,6 +29,11 @@ try
         require_once $include;
     }
 
+    foreach(glob(getcwd().'/includes/*.php') as $include)
+    {
+        require_once $include;
+    }
+
     $application = $container->resolve(Application::class);
 
     $application->run();
