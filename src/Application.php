@@ -54,7 +54,7 @@ WRIGHT;
 
                         foreach ($errors as $error) {
 
-                            $this->stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
+                            $this->stdio->errln('<<red>>' . $error->getMessage() . '<<reset>>');
                         }
 
                         $status = Status::USAGE;
@@ -164,7 +164,7 @@ WRIGHT;
 
                         foreach ($errors as $error) {
 
-                            $this->stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
+                            $this->stdio->errln('<<red>>' . $error->getMessage() . '<<reset>>');
                         }
 
                         $k = 2;
@@ -175,7 +175,7 @@ WRIGHT;
 
                                 $name = isset($argument_name) ? $argument_name : 'argument ' . $k;
 
-                                $this->stdio->errln('<<redbg white>>The argument \'' . $name . '\' is required.<<reset>>');
+                                $this->stdio->errln('<<red>>The argument \'' . $name . '\' is required.<<reset>>');
 
                                 $errors = true;
                             }
@@ -202,7 +202,7 @@ WRIGHT;
 
             } else {
 
-                $this->stdio->errln('<<redbg white>>There is no command \'' . $command_name . '\'<<reset>>');
+                $this->stdio->errln('<<red>>There is no command \'' . $command_name . '\'<<reset>>');
             }
 
         } else {
@@ -213,7 +213,7 @@ WRIGHT;
 
                 foreach ($errors as $error) {
 
-                    $this->stdio->errln('<<redbg white>>' . $error->getMessage() . '<<reset>>');
+                    $this->stdio->errln('<<red>>' . $error->getMessage() . '<<reset>>');
                 }
 
                 $status = Status::USAGE;
