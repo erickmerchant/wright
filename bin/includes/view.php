@@ -18,6 +18,4 @@ $container->bind('view_twig', \Twig_Environment::class, [
     ->after(function ($twig) {
 
         $twig->addExtension(new Twig\StandardExtension);
-
-        $twig->addExtension(new Twig\DateBatchExtension);
     });
