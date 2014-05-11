@@ -21,7 +21,7 @@ $container->bind(DataInterface::class, MarkdownData::class, [
             $twig->addExtension(new Twig\ThumbnailExtension(
                 new Imagine,
                 getcwd() . '/data/',
-                getcwd() . '/../erickmerchant.github.io/'
+                getcwd() . '/site/'
             ));
 
             return $twig;
