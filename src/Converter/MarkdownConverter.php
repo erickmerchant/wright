@@ -38,9 +38,4 @@ class MarkdownConverter implements ConverterInterface
 
         return $content;
     }
-
-    public function getExt()
-    {
-        return 'md';
-    }
 }

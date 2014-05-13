@@ -16,7 +16,11 @@ $container->bind(DataInterface::class, StandardData::class, [
     ])
     ->after(function($data){
 
-        $data->addConverter(new MarkdownConverter(new MarkdownExtra, new SmartyPants));
+        $markdown = new MarkdownConverter(new MarkdownExtra, new SmartyPants);
+
+        $data->addConverter('md', $markdown);
+
+        $data->addConverter('markdown', $markdown);
     });
 
 $container->alias(DataInterface::class, 'data');

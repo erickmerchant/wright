@@ -24,9 +24,9 @@ class StandardData implements \IteratorAggregate, DataInterface
         $this->yaml = $yaml;
     }
 
-    public function addConverter(ConverterInterface $converter)
+    public function addConverter($ext, ConverterInterface $converter)
     {
-        $this->converters[$converter->getExt()] = $converter;
+        $this->converters[$ext] = $converter;
     }
 
     public function getIterator()
