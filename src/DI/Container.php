@@ -63,6 +63,15 @@ class Container
         return $this->definitions[$abstract];
     }
 
+    public function alias($abstract, $alias)
+    {
+        $definition = $this->get($abstract);
+
+        $this->definitions[$alias] = $definition;
+
+        return $definition;    
+    }
+
     public function after($abstract, \Closure $after)
     {
         $definition = $this->get($abstract);

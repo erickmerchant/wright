@@ -19,6 +19,7 @@ $container->bind(DataInterface::class, StandardData::class, [
         $data->addConverter(new MarkdownConverter(new MarkdownExtra, new SmartyPants));
     });
 
+$container->alias(DataInterface::class, 'data');
 
 $container->bind('data_twig', \Twig_Environment::class, [
         'loader' => $container->definition(\Twig_Loader_String::class)
