@@ -68,13 +68,6 @@ class PublishCommand implements CommandInterface
 
         $defaults = $this->settings->read('defaults');
 
-        $asset_settings = $this->settings->read('assets');
-
-        foreach ($asset_settings as $type => $assets) {
-
-            $defaults[$type . '_assets'] = $assets;
-        }
-
         $pages = new SiteModel($this->schema);
 
         if ($pages) {
