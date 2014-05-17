@@ -79,7 +79,8 @@ class Schema
                     permalink TEXT UNIQUE,
                     type TEXT,
                     node_id INTEGER,
-                    template TEXT
+                    template TEXT,
+                    middleware TEXT
                 )'
         );
     }
@@ -193,7 +194,7 @@ class Schema
 
     protected function setupPages()
     {
-        $page_insert = $this->connection->prepare("INSERT INTO pages (permalink, type, node_id, template) VALUES (:permalink, :type, :node_id, :template)");
+        $page_insert = $this->connection->prepare("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)");
 
         $sitemap_settings = $this->settings->read('sitemap');
 
@@ -217,11 +218,14 @@ class Schema
 
             $permalink = $this->makePermalink($permalink_pattern, $fields);
 
+            $settings['middleware'] = isset($settings['middleware']) ? json_encode($settings['middleware']) : '';
+
             $page_insert->execute([
                 ':permalink' => $permalink,
                 ':type' => $type,
                 ':node_id' => $node_id,
-                ':template' => $settings['template']
+                ':template' => $settings['template'],
+                ':middleware' => $settings['middleware']
             ]);
 
             foreach ($old_permalinks_settings as $old_url => $new_url) {
@@ -236,7 +240,8 @@ class Schema
                         ':permalink' => $old_url,
                         ':type' => 'old',
                         ':node_id' => $node_id,
-                        ':template' => $settings['template']
+                        ':template' => $settings['template'],
+                        ':middleware' => $settings['middleware']
                     ]);
                 }
             }

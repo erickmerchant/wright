@@ -3,6 +3,7 @@
 use Wright\View\ViewInterface;
 use Wright\Model\Schema;
 use Wright\Settings\SettingsInterface;
+use Wright\Middleware\MiddlewareManager;
 use Wright\Model\SiteModel;
 use Wright\Model\PageModel;
 use Aura\Cli\Status;
@@ -19,9 +20,11 @@ class PublishCommand implements CommandInterface
 
     protected $schema;
 
+    protected $middleware;
+
     protected $settings;
 
-    public function __construct(FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, SettingsInterface $settings, ViewInterface $view)
+    public function __construct(FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
     {
         $this->base_filesystem = $base_filesystem;
 
@@ -30,6 +33,8 @@ class PublishCommand implements CommandInterface
         $this->view = $view;
 
         $this->schema = $schema;
+
+        $this->middleware = $middleware;
 
         $this->settings = $settings;
     }
@@ -74,13 +79,21 @@ class PublishCommand implements CommandInterface
 
             foreach ($pages as $page) {
 
-                $defaults['permalink'] = $page['permalink'];
-
                 if (substr($page['permalink'], -1) == '/') {
                     $page['permalink'] .= 'index.html';
                 }
 
                 $page_model = new PageModel($page['page_id'], $this->schema);
+
+                if($page['middleware']) {
+
+                    $page['middleware'] = json_decode($page['middleware']);
+
+                    foreach($page['middleware'] as $middleware) {
+
+                        $page_model = $this->middleware->call($middleware, $page_model);
+                    }
+                }
 
                 $response = $this->view->render($page['template'], $defaults + ['page' => $page_model]);
 
