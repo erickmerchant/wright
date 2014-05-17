@@ -2,6 +2,7 @@
 
 use Wright\View\ViewInterface;
 use Wright\Model\Schema;
+use Wright\Generators\GeneratorCollection;
 use Wright\Settings\SettingsInterface;
 use Wright\Middleware\MiddlewareManager;
 use Wright\Model\SiteModel;
@@ -24,7 +25,7 @@ class PublishCommand implements CommandInterface
 
     protected $settings;
 
-    public function __construct(FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
+    public function __construct(FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, GeneratorCollection $generators, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
     {
         $this->base_filesystem = $base_filesystem;
 
@@ -33,6 +34,8 @@ class PublishCommand implements CommandInterface
         $this->view = $view;
 
         $this->schema = $schema;
+
+        $this->generators = $generators;
 
         $this->middleware = $middleware;
 
@@ -56,6 +59,8 @@ class PublishCommand implements CommandInterface
 
     public function execute(Stdio $stdio, array $params = [])
     {
+        $this->generators->run();
+
         $this->schema->setup();
 
         foreach ($this->base_filesystem->listContents('/', true) as $file) {
