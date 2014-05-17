@@ -3,10 +3,10 @@
 use Wright\Extensions\Twig;
 
 $container->bind(ViewInterface::class, TwigView::class, [
-    'twig' => $container->get('view_twig')
+    'twig' => $container->get('twig')
 ]);
 
-$container->bind('view_twig', \Twig_Environment::class, [
+$container->bind('twig', \Twig_Environment::class, [
         'loader' => $container->definition(\Twig_Loader_Filesystem::class, [
             'paths' => getcwd() . '/templates'
         ]),

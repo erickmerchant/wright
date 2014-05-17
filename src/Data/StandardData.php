@@ -1,7 +1,6 @@
 <?php namespace Wright\Data;
 
 use Symfony\Component\Yaml\Yaml;
-use Twig_Environment;
 use League\Flysystem\FilesystemInterface;
 use Wright\Converter\ConverterInterface;
 
@@ -9,17 +8,13 @@ class StandardData implements \IteratorAggregate, DataInterface
 {
     protected $data_filesystem;
 
-    protected $twig;
-
     protected $yaml;
 
     protected $converters = [];
 
-    public function __construct(FilesystemInterface $data_filesystem, Twig_Environment $twig, Yaml $yaml)
+    public function __construct(FilesystemInterface $data_filesystem, Yaml $yaml)
     {
         $this->data_filesystem = $data_filesystem;
-
-        $this->twig = $twig;
 
         $this->yaml = $yaml;
     }
@@ -125,10 +120,6 @@ class StandardData implements \IteratorAggregate, DataInterface
                 }
 
                 $result = $this->yaml->parse($meta);
-
-                $template = $this->twig->loadTemplate($content);
-
-                $content = $template->render([]);
 
                 $content = $this->converters[$ext]->convert($content);
 

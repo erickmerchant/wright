@@ -10,8 +10,6 @@ $container->bind(DataInterface::class, StandardData::class, [
 
         'data_filesystem' => $container->get('data_filesystem'),
 
-        'twig' => $container->get('data_twig'),
-
         'yaml' => $container->definition(Yaml::class)
     ])
     ->after(function($data){
@@ -24,11 +22,3 @@ $container->bind(DataInterface::class, StandardData::class, [
     });
 
 $container->alias(DataInterface::class, 'data');
-
-$container->bind('data_twig', \Twig_Environment::class, [
-        'loader' => $container->definition(\Twig_Loader_String::class)
-    ])
-    ->after(function ($twig) {
-
-        $twig->addExtension(new Twig\StandardExtension);
-    });
