@@ -14,10 +14,13 @@
         "imagine/imagine": "~0.5",
         "jbroadway/urlify": "~1.0",
         "league/flysystem": "~0.2",
-        "michelf/php-markdown": "~1.4",
-        "michelf/php-smartypants": "~1.6",
         "symfony/yaml": "~2.3",
         "twig/twig": "~1.14"
+    },
+    "suggest": {
+        "michelf/php-markdown": "If you use Wright\\Converter\\MarkdownConverter",
+        "michelf/php-smartypants": "If you use Wright\\Converter\\MarkdownConverter",
+        "erusev/parsedown": "If you use Wright\\Converter\\ParsedownConverter"
     },
     "bin": ["bin/wright"],
     "autoload": {
