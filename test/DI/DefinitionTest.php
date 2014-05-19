@@ -2,6 +2,7 @@
 
 use Wright\DI\Container;
 use Wright\DI\Definition;
+use Wright\DI\ResolveArgsException;
 
 /**
  * @coversDefaultClass Wright\DI\Definition
@@ -55,6 +56,22 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::after
+     */
+    public function testAfter()
+    {
+        $container = new Container;
+
+        $definition = new Definition($container);
+
+        $closure = function () {};
+
+        $definition->after($closure);
+
+        $this->assertAttributeEquals([$closure], 'afters', $definition);
+    }
+
+    /**
      * @covers ::resolve
      */
     public function testResolve()
@@ -80,6 +97,24 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $definition = new Definition($container);
 
         $resolved = $definition->resolve();
+    }
+
+    /**
+     * @covers ::resolve
+     */
+    public function testResolveWithAfter()
+    {
+        $container = new Container;
+
+        $definition = new Definition($container, Stub\Foo::class);
+
+        $closure = function () {};
+
+        $definition->after($closure);
+
+        $this->assertAttributeEquals([$closure], 'afters', $definition);
+
+        $definition->resolve();
     }
 
     /**
@@ -191,5 +226,18 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $resolved = $definition->resolve();
 
         $this->assertAttributeEquals('the default of baz', 'baz', $resolved);
+    }
+
+    /**
+     * @covers ::resolveArgs
+     * @expectedException \Wright\DI\ResolveArgsException
+     */
+    public function testResolveArgsWithException()
+    {
+        $container = new Container;
+
+        $definition = new Definition($container, Stub\Qux::class);
+
+        $definition->resolve();
     }
 }
