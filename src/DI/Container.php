@@ -32,7 +32,7 @@ class Container
      * @param  string|null $concrete A class. Not an interface.
      * @return Definition
      */
-    public function resolvable($concrete = null)
+    public function resolvable(\Closure $concrete)
     {
         /**
          * @todo validate that $concrete is a string or null
@@ -69,7 +69,7 @@ class Container
 
         $this->definitions[$alias] = $definition;
 
-        return $definition;    
+        return $definition;
     }
 
     public function after($abstract, \Closure $after)
