@@ -114,15 +114,19 @@ class Container
 
         if (isset($this->definitions[$abstract])) {
 
-            $this->definitions[$abstract]->setClass($concrete);
+            $definition = $this->definitions[$abstract];
 
-            $this->definitions[$abstract]->withArgs($args);
+            $definition->setClass($concrete);
+
+            $definition->withArgs($args);
 
         } else {
 
-            $this->definitions[$abstract] = new Definition($this, $concrete, $args);
+            $definition = new Definition($this, $concrete, $args);
+
+            $this->definitions[$abstract] = $definition;
         }
 
-        return $this->definitions[$abstract];
+        return $definition;
     }
 }
