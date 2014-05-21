@@ -57,7 +57,12 @@ class YamlSettings implements SettingsInterface
          * @todo validate that $file is a string
          */
 
-        $result = $this->yaml->parse($this->settings_filesystem->read($file . '.yml'));
+        $result = [];
+
+        if($this->settings_filesystem->has($file . '.yml')) {
+
+            $result = $this->yaml->parse($this->settings_filesystem->read($file . '.yml'));
+        }
 
         return $result;
     }
