@@ -2,7 +2,7 @@
 
 use Wright\View\ViewInterface;
 use Wright\Model\Schema;
-use Wright\Generators\GeneratorCollection;
+use Wright\Hooks\HooksManager;
 use Wright\Settings\SettingsInterface;
 use Wright\Middleware\MiddlewareManager;
 use Wright\Model\SiteModel;
@@ -21,11 +21,13 @@ class PublishCommand implements CommandInterface
 
     protected $schema;
 
+    protected $hooks;
+
     protected $middleware;
 
     protected $settings;
 
-    public function __construct(FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, GeneratorCollection $generators, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
+    public function __construct(HooksManager $hooks, FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
     {
         $this->base_filesystem = $base_filesystem;
 
@@ -35,7 +37,7 @@ class PublishCommand implements CommandInterface
 
         $this->schema = $schema;
 
-        $this->generators = $generators;
+        $this->hooks = $hooks;
 
         $this->middleware = $middleware;
 
@@ -59,7 +61,7 @@ class PublishCommand implements CommandInterface
 
     public function execute(Stdio $stdio, array $params = [])
     {
-        $this->generators->run();
+        $this->hooks->call('before.publish');
 
         $this->schema->setup();
 
@@ -107,6 +109,8 @@ class PublishCommand implements CommandInterface
         }
 
         $stdio->outln('<<magenta>>Site published on ' . (new \DateTime)->format('Y-m-d') . '<<reset>>');
+
+        $this->hooks->call('after.publish');
 
         return Status::SUCCESS;
     }

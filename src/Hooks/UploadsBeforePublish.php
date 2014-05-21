@@ -1,10 +1,10 @@
-<?php namespace Wright\Generators;
+<?php namespace Wright\Hooks;
 
 use Imagine\Image;
 use Imagine\Image\ImagineInterface;
 use Wright\Settings\SettingsInterface;
 
-class UploadsGenerator
+class UploadsBeforePublish
 {
     /**
      * Imagine for working with images

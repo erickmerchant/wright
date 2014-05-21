@@ -3,14 +3,19 @@
 use Aura\Cli\Status;
 use Aura\Cli\Stdio;
 use Wright\Data\DataInterface;
+use Wright\Hooks\HooksManager;
 
 class MoveCommand implements CommandInterface
 {
     protected $data;
 
-    public function __construct(DataInterface $data)
+    protected $hooks;
+
+    public function __construct(HooksManager $hooks, DataInterface $data)
     {
         $this->data = $data;
+
+        $this->hooks = $hooks;
     }
 
     public function getDescription()
@@ -53,7 +58,7 @@ class MoveCommand implements CommandInterface
         }
 
         $params['source'] = substr($params['source'], strlen('data/'));
-        
+
         $params['target'] = substr($params['target'], strlen('data/'));
 
         $match = preg_match('/^(?:.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.|[0-9]+\.|)([^\/]*)$/', $params['source'], $matches);
@@ -76,6 +81,8 @@ class MoveCommand implements CommandInterface
 
         $file .= $matches[2];
 
+        $this->hooks->call('before.move');
+
         $this->data->move($params['source'], $file);
 
         if ($params['--title']) {
@@ -88,6 +95,8 @@ class MoveCommand implements CommandInterface
         }
 
         $stdio->outln('<<magenta>>' . $params['source'] . ' moved to ' . $file . '<<reset>>');
+
+        $this->hooks->call('after.move');
 
         return Status::SUCCESS;
     }

@@ -3,14 +3,19 @@
 use Aura\Cli\Status;
 use Aura\Cli\Stdio;
 use Wright\Data\DataInterface;
+use Wright\Hooks\HooksManager;
 
 class MakeCommand implements CommandInterface
 {
     protected $data;
 
-    public function __construct(DataInterface $data)
+    protected $hooks;
+
+    public function __construct(HooksManager $hooks, DataInterface $data)
     {
         $this->data = $data;
+
+        $this->hooks = $hooks;
     }
 
     public function getDescription()
@@ -97,9 +102,13 @@ class MakeCommand implements CommandInterface
 
         $file = trim($file, '/');
 
+        $this->hooks->call('before.make');
+
         $this->data->write($file, $data);
 
         $stdio->outln('<<magenta>>' . $file . ' published on ' . (new \DateTime)->format('Y-m-d') . '<<reset>>');
+
+        $this->hooks->call('after.make');
 
         return Status::SUCCESS;
     }
