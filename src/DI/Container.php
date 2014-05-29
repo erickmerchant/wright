@@ -91,7 +91,7 @@ class Container
             return $this->definitions[$abstract]->resolve();
         }
 
-        throw new ResolveException('Asbstract ' . $abstract . ' is not defined');
+        throw new ResolveException('Abstract ' . $abstract . ' is not defined');
     }
 
     /**
