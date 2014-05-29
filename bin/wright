@@ -40,15 +40,11 @@ try
 }
 catch(\Exception $e)
 {
-    $cli_factory = new CliFactory;
-
-    $stdio = $cli_factory->newStdio();
-
     $i = 0;
 
     do
     {
-        $stdio->outln('<<redbg white>> [' . get_class($e) . '] ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() . '<<reset>>');
+        echo '[' . get_class($e) . '] ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine();
     }
     while($e = $e->getPrevious());
 
