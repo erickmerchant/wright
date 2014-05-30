@@ -3,7 +3,7 @@
 /**
  * @todo add docblocks
  */
-class NodeModel implements \IteratorAggregate
+class NodeModel
 {
     protected $schema;
 
@@ -50,11 +50,6 @@ class NodeModel implements \IteratorAggregate
                 }
             }
         }
-    }
-
-    public function getIterator()
-    {
-        return $this->collection();
     }
 
     public function collection()

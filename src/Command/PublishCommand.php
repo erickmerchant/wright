@@ -80,11 +80,11 @@ class PublishCommand implements CommandInterface
 
         $defaults = $this->settings->read('defaults');
 
-        $pages = new SiteModel($this->schema);
+        $site = new SiteModel($this->schema);
 
-        if ($pages) {
+        if ($site) {
 
-            foreach ($pages as $page) {
+            foreach ($site->pages() as $page) {
 
                 if (substr($page['permalink'], -1) == '/') {
                     $page['permalink'] .= 'index.html';

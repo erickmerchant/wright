@@ -3,7 +3,7 @@
 /**
  * @todo add docblocks
  */
-class PageModel extends NodeModel implements \IteratorAggregate
+class PageModel extends NodeModel
 {
     public function __construct($page_id, Schema $schema)
     {

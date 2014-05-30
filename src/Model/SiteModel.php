@@ -3,7 +3,7 @@
 /**
  * @todo add docblocks
  */
-class SiteModel implements \IteratorAggregate
+class SiteModel
 {
     protected $schema;
 
@@ -12,7 +12,7 @@ class SiteModel implements \IteratorAggregate
         $this->schema = $schema;
     }
 
-    public function getIterator()
+    public function pages()
     {
         return $this->schema->query('SELECT * FROM pages');
     }
