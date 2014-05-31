@@ -63,8 +63,6 @@ class PublishCommand implements CommandInterface
     {
         $this->hooks->call('before.publish');
 
-        $this->schema->setup();
-
         foreach ($this->base_filesystem->listContents('/', true) as $file) {
 
             if ($file['type'] == 'file') {
@@ -80,31 +78,29 @@ class PublishCommand implements CommandInterface
 
         $defaults = $this->settings->read('defaults');
 
-        $site = new SiteModel($this->schema);
+        $site = new SiteModel($this->schema->getConnection());
 
         if ($site) {
 
-            foreach ($site->pages() as $page) {
+            foreach ($site->pages() as $page_model) {
 
-                if (substr($page['permalink'], -1) == '/') {
-                    $page['permalink'] .= 'index.html';
+                if (substr($page_model->permalink, -1) == '/') {
+                    $page_model->permalink .= 'index.html';
                 }
 
-                $page_model = new PageModel($page['page_id'], $this->schema);
+                if($page_model->middleware) {
 
-                if($page['middleware']) {
+                    $page_model->middleware = json_decode($page_model->middleware);
 
-                    $page['middleware'] = json_decode($page['middleware']);
-
-                    foreach($page['middleware'] as $middleware) {
+                    foreach($page_model->middleware as $middleware) {
 
                         $page_model = $this->middleware->call($middleware, $page_model);
                     }
                 }
 
-                $response = $this->view->render($page['template'], $defaults + ['page' => $page_model]);
+                $response = $this->view->render($page_model->template, $defaults + ['page' => $page_model]);
 
-                $this->site_filesystem->put($page['permalink'], $response);
+                $this->site_filesystem->put($page_model->permalink, $response);
             }
         }
 

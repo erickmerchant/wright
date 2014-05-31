@@ -1,27 +1,29 @@
 <?php namespace Wright\Model;
 
+use Aura\Sql\ExtendedPdoInterface;
+
 /**
  * @todo add docblocks
  */
 class NodeModel
 {
-    protected $schema;
+    protected $connection;
 
     protected $node_id;
 
     protected $parent_node_id;
 
-    protected $fields;
+    protected $fields = [];
 
     protected $published_on;
 
-    public function __construct($node_id, Schema $schema)
+    public function __construct($node_id, ExtendedPdoInterface $connection)
     {
         $this->node_id = $node_id;
 
-        $this->schema = $schema;
+        $this->connection = $connection;
 
-        $row = $this->schema->row("SELECT parent_node_id, published_on, fields FROM nodes WHERE node_id = " . $node_id);
+        $row = $this->connection->fetchOne("SELECT parent_node_id, published_on, fields FROM nodes WHERE node_id = " . $node_id);
 
         if ($row) {
 
@@ -29,12 +31,14 @@ class NodeModel
 
             $this->published_on = $row['published_on'];
 
-            $this->fields = json_decode($row['fields'], true);
+            $fields = json_decode($row['fields'], true);
+
+            $this->fields = array_merge($this->fields, (array)$fields);
 
             $this->fields['published_on'] = date_create_from_format('Y-m-d', $row['published_on']);
         }
 
-        $query = $this->schema->query("SELECT * FROM pages WHERE node_id = " . $node_id);
+        $query = $this->connection->fetchAll("SELECT * FROM pages WHERE node_id = " . $node_id);
 
         if ($query) {
 
@@ -54,7 +58,7 @@ class NodeModel
 
     public function collection()
     {
-        $query = $this->schema->query("SELECT node_id FROM nodes WHERE parent_node_id = " . $this->node_id . " ORDER BY published_on DESC, slug ASC");
+        $query = $this->connection->fetchAll("SELECT node_id FROM nodes WHERE parent_node_id = " . $this->node_id . " ORDER BY published_on DESC, slug ASC");
 
         $collection = [];
 
@@ -62,7 +66,7 @@ class NodeModel
 
             foreach ($query as $row) {
 
-                $collection[] = new self($row['node_id'], $this->schema);
+                $collection[] = new self($row['node_id'], $this->connection);
             }
         }
 
@@ -71,25 +75,25 @@ class NodeModel
 
     public function next()
     {
-        $row = $this->schema->row("SELECT node_id FROM nodes WHERE published_on > '" . $this->published_on . "' AND parent_node_id = " . $this->parent_node_id . " ORDER BY published_on LIMIT 1");
+        $row = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE published_on > '" . $this->published_on . "' AND parent_node_id = " . $this->parent_node_id . " ORDER BY published_on LIMIT 1");
 
         if ($row) {
-            return new self($row['node_id'], $this->schema);
+            return new self($row['node_id'], $this->connection);
         }
     }
 
     public function previous()
     {
-        $row = $this->schema->row("SELECT node_id FROM nodes WHERE published_on < '" . $this->published_on . "' AND parent_node_id = " . $this->parent_node_id . " ORDER BY published_on DESC LIMIT 1");
+        $row = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE published_on < '" . $this->published_on . "' AND parent_node_id = " . $this->parent_node_id . " ORDER BY published_on DESC LIMIT 1");
 
         if ($row) {
-            return new self($row['node_id'], $this->schema);
+            return new self($row['node_id'], $this->connection);
         }
     }
 
     public function parent()
     {
-        return new self($this->parent_node_id, $this->schema);
+        return new self($this->parent_node_id, $this->connection);
     }
 
     public function related($path)
@@ -98,23 +102,23 @@ class NodeModel
 
         $path .= '/';
 
-        $query = $this->schema->query("SELECT nodes.node_id FROM relationships LEFT JOIN nodes ON relationships.related_node_id = nodes.node_id WHERE relationships.node_id = '" . $this->node_id . "' AND nodes.path LIKE '" . $path . "%' ORDER BY published_on DESC, slug ASC");
+        $query = $this->connection->fetchAll("SELECT nodes.node_id FROM relationships LEFT JOIN nodes ON relationships.related_node_id = nodes.node_id WHERE relationships.node_id = '" . $this->node_id . "' AND nodes.path LIKE '" . $path . "%' ORDER BY published_on DESC, slug ASC");
 
         if ($query) {
 
             foreach ($query as $row) {
 
-                $collection[] = new self($row['node_id'], $this->schema);
+                $collection[] = new self($row['node_id'], $this->connection);
             }
         }
 
-        $query = $this->schema->query("SELECT nodes.node_id FROM relationships LEFT JOIN nodes ON relationships.node_id = nodes.node_id WHERE relationships.related_node_id = '" . $this->node_id . "' AND nodes.path LIKE '" . $path . "%' ORDER BY published_on DESC, slug ASC");
+        $query = $this->connection->fetchAll("SELECT nodes.node_id FROM relationships LEFT JOIN nodes ON relationships.node_id = nodes.node_id WHERE relationships.related_node_id = '" . $this->node_id . "' AND nodes.path LIKE '" . $path . "%' ORDER BY published_on DESC, slug ASC");
 
         if ($query) {
 
             foreach ($query as $row) {
 
-                $collection[] = new self($row['node_id'], $this->schema);
+                $collection[] = new self($row['node_id'], $this->connection);
             }
         }
 

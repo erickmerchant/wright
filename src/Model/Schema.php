@@ -2,6 +2,7 @@
 
 use Wright\Data\DataInterface;
 use Wright\Settings\SettingsInterface;
+use Aura\Sql\ExtendedPdoInterface;
 
 class Schema
 {
@@ -11,10 +12,10 @@ class Schema
 
     protected $settings;
 
-    public function __construct(\PDO $connection, DataInterface $data, SettingsInterface $settings)
-    {
-        // $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+    protected $is_setup = false;
 
+    public function __construct(ExtendedPdoInterface $connection, DataInterface $data, SettingsInterface $settings)
+    {
         $this->connection = $connection;
 
         $this->data = $data;
@@ -29,23 +30,18 @@ class Schema
         $this->setupNodes();
 
         $this->setupPages();
+
+        $this->is_setup = true;
     }
 
-    public function query($sql)
+    public function getConnection()
     {
-        return $this->connection->query($sql);
-    }
-
-    public function row($sql)
-    {
-        $result = $this->connection->query($sql);
-
-        if ($result) {
-
-            $result = $result->fetch(\PDO::FETCH_ASSOC);
+        if(!$this->is_setup)
+        {
+            $this->setup();
         }
 
-        return $result;
+        return $this->connection;
     }
 
     protected function setupTables()
@@ -87,13 +83,7 @@ class Schema
 
     protected function setupNodes()
     {
-        $node_insert = $this->connection->prepare("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)");
-
-        $node_update = $this->connection->prepare("UPDATE nodes SET fields = :fields WHERE node_id = :node_id");
-
-        $relationship_insert = $this->connection->prepare("INSERT INTO relationships (node_id, related_node_id) VALUES (:node_id, :related_node_id)");
-
-        $insert_node_fn = function ($directory, $file) use ($node_insert) {
+        $insert_node_fn = function ($directory, $file) {
 
             $path = $file;
 
@@ -102,7 +92,7 @@ class Schema
                 $path = $directory . '/' . $file;
             }
 
-            $node_query = $this->row("SELECT node_id FROM nodes WHERE path = '$path' LIMIT 1");
+            $node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = '$path' LIMIT 1");
 
             if ($node_query) {
 
@@ -124,7 +114,7 @@ class Schema
 
                 if ($directory) {
 
-                    $parent_node_query = $this->row("SELECT node_id FROM nodes WHERE path = '$directory' LIMIT 1");
+                    $parent_node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = '$directory' LIMIT 1");
 
                     if ($parent_node_query) {
 
@@ -132,22 +122,22 @@ class Schema
 
                     } else {
 
-                        $node_insert->execute([
-                            ':parent_node_id' => 0,
-                            ':path' => $directory,
-                            ':slug' => '',
-                            ':published_on' => $published_on->format('Y-m-d')
+                        $this->connection->perform("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)", [
+                            'parent_node_id' => 0,
+                            'path' => $directory,
+                            'slug' => '',
+                            'published_on' => $published_on->format('Y-m-d')
                         ]);
 
                         $parent_node_id = $this->connection->lastInsertId();
                     }
                 }
 
-                $node_insert->execute([
-                    ':parent_node_id' => $parent_node_id,
-                    ':path' => $path,
-                    ':slug' => $slug,
-                    ':published_on' => $published_on->format('Y-m-d')
+                $this->connection->perform("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)", [
+                    'parent_node_id' => $parent_node_id,
+                    'path' => $path,
+                    'slug' => $slug,
+                    'published_on' => $published_on->format('Y-m-d')
                 ]);
 
                 $result = $this->connection->lastInsertId();
@@ -168,9 +158,9 @@ class Schema
 
             $node_id = $insert_node_fn($directory, $file);
 
-            $node_update->execute([
-                ':fields' => $json_fields,
-                ':node_id' => $node_id
+            $this->connection->perform("UPDATE nodes SET fields = :fields WHERE node_id = :node_id", [
+                'fields' => $json_fields,
+                'node_id' => $node_id
             ]);
 
             if (isset($fields['related'])) {
@@ -183,9 +173,9 @@ class Schema
 
                     $related_node_id = $insert_node_fn($directory, $file);
 
-                    $relationship_insert->execute([
-                        ':node_id' => $node_id,
-                        ':related_node_id' => $related_node_id
+                    $this->connection->perform("INSERT INTO relationships (node_id, related_node_id) VALUES (:node_id, :related_node_id)", [
+                        'node_id' => $node_id,
+                        'related_node_id' => $related_node_id
                     ]);
                 }
             }
