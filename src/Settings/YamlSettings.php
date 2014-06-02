@@ -12,16 +12,16 @@ class YamlSettings implements SettingsInterface
      */
     protected $yaml;
 
-    protected $settings_filesystem;
+    protected $source_filesystem;
 
     /**
      * @param FileManagerInterface $filemanager The file manager for read, writing files, etc.
      */
-    public function __construct(FilesystemInterface $settings_filesystem, Yaml $yaml)
+    public function __construct(FilesystemInterface $source_filesystem, Yaml $yaml)
     {
         $this->yaml = $yaml;
 
-        $this->settings_filesystem = $settings_filesystem;
+        $this->source_filesystem = $source_filesystem;
     }
 
     /**
@@ -33,6 +33,8 @@ class YamlSettings implements SettingsInterface
      */
     public function write($file, $settings)
     {
+        $file = '/settings/' . $file;
+
         /**
          * @todo validate that $file is a string
          * @todo validate that $settings is a string
@@ -42,7 +44,7 @@ class YamlSettings implements SettingsInterface
 
         $settings = $this->yaml->dump($settings);
 
-        $this->settings_filesystem->put($file . '.yml', $settings);
+        $this->source_filesystem->put($file . '.yml', $settings);
     }
 
     /**
@@ -53,15 +55,17 @@ class YamlSettings implements SettingsInterface
      */
     public function read($file)
     {
+        $file = '/settings/' . $file;
+
         /**
          * @todo validate that $file is a string
          */
 
         $result = [];
 
-        if($this->settings_filesystem->has($file . '.yml')) {
+        if($this->source_filesystem->has($file . '.yml')) {
 
-            $result = $this->yaml->parse($this->settings_filesystem->read($file . '.yml'));
+            $result = $this->yaml->parse($this->source_filesystem->read($file . '.yml'));
         }
 
         return $result;

@@ -13,7 +13,7 @@ use League\Flysystem\FilesystemInterface;
 
 class PublishCommand implements CommandInterface
 {
-    protected $base_filesystem;
+    protected $source_filesystem;
 
     protected $site_filesystem;
 
@@ -27,9 +27,9 @@ class PublishCommand implements CommandInterface
 
     protected $settings;
 
-    public function __construct(HooksManager $hooks, FilesystemInterface $base_filesystem, FilesystemInterface $site_filesystem, Schema $schema, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
+    public function __construct(HooksManager $hooks, FilesystemInterface $source_filesystem, FilesystemInterface $site_filesystem, Schema $schema, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
     {
-        $this->base_filesystem = $base_filesystem;
+        $this->source_filesystem = $source_filesystem;
 
         $this->site_filesystem = $site_filesystem;
 
@@ -63,16 +63,18 @@ class PublishCommand implements CommandInterface
     {
         $this->hooks->call('before.publish');
 
-        foreach ($this->base_filesystem->listContents('/', true) as $file) {
+        foreach ($this->source_filesystem->listContents('/base/', true) as $file) {
+
+            $path = substr(trim($file['path'], '/'), 5);
 
             if ($file['type'] == 'file') {
 
-                if (!$this->site_filesystem->has(dirname($file['path']))) {
+                if (!$this->site_filesystem->has(dirname($path))) {
 
-                    $this->site_filesystem->createDir(dirname($file['path']));
+                    $this->site_filesystem->createDir(dirname($path));
                 }
 
-                $this->site_filesystem->put($file['path'], $this->base_filesystem->read($file['path']));
+                $this->site_filesystem->put($path, $this->source_filesystem->read($file['path']));
             }
         }
 

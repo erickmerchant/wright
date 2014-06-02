@@ -4,7 +4,7 @@ use Symfony\Component\Yaml\Yaml;
 
 $container->bind(SettingsInterface::class, YamlSettings::class, [
 
-    'settings_filesystem' => $container->get('settings_filesystem'),
+    'source_filesystem' => $container->get('source_filesystem'),
 
     'yaml' => $container->definition(Yaml::class)
 ]);

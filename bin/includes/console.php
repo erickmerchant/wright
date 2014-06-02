@@ -38,7 +38,7 @@ $container->bind(Application::class, Application::class, [
         ]),
         'commands' => [
             'publish' => $container->definition(Command\PublishCommand::class, [
-                'base_filesystem' => $container->get('base_filesystem'),
+                'source_filesystem' => $container->get('source_filesystem'),
                 'site_filesystem' => $container->get('site_filesystem')
             ]),
             'make' => $container->definition(Command\MakeCommand::class),

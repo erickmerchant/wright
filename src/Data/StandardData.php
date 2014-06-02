@@ -6,15 +6,15 @@ use Wright\Converter\ConverterInterface;
 
 class StandardData implements \IteratorAggregate, DataInterface
 {
-    protected $data_filesystem;
+    protected $source_filesystem;
 
     protected $yaml;
 
     protected $converters = [];
 
-    public function __construct(FilesystemInterface $data_filesystem, Yaml $yaml)
+    public function __construct(FilesystemInterface $source_filesystem, Yaml $yaml)
     {
-        $this->data_filesystem = $data_filesystem;
+        $this->source_filesystem = $source_filesystem;
 
         $this->yaml = $yaml;
     }
@@ -28,7 +28,7 @@ class StandardData implements \IteratorAggregate, DataInterface
     {
         $result = [];
 
-        foreach ($this->data_filesystem->listPaths('/', true) as $path) {
+        foreach ($this->source_filesystem->listPaths('/data/', true) as $path) {
 
             $ext = pathinfo($path, PATHINFO_EXTENSION);
 
@@ -37,11 +37,11 @@ class StandardData implements \IteratorAggregate, DataInterface
                 continue;
             }
 
-            $directory = trim(dirname($path), '/');
+            $directory = substr(trim(dirname($path), '/'), 5);
 
             $file = trim(basename($path), '/');
 
-            if ($directory == '.') {
+            if ($directory == '') {
 
                 $result[] = $file;
 
@@ -63,6 +63,8 @@ class StandardData implements \IteratorAggregate, DataInterface
      */
     public function write($file, $data)
     {
+        $file = '/data/' . $file;
+
         /**
          * @todo validate that $file is a string
          * @todo validate that $data is a string
@@ -76,9 +78,9 @@ class StandardData implements \IteratorAggregate, DataInterface
 
         $data = '---' . PHP_EOL . trim($this->yaml->dump($data, 5)) . PHP_EOL . '---' . PHP_EOL . $data_content;
 
-        $this->data_filesystem->createDir(dirname($file));
+        $this->source_filesystem->createDir(dirname($file));
 
-        $this->data_filesystem->put($file, $data);
+        $this->source_filesystem->put($file, $data);
     }
 
     /**
@@ -89,6 +91,8 @@ class StandardData implements \IteratorAggregate, DataInterface
      */
     public function read($file)
     {
+        $file = '/data/' . $file;
+
         /**
          * @todo validate that $file is a string
          */
@@ -103,7 +107,7 @@ class StandardData implements \IteratorAggregate, DataInterface
 
             $content = '';
 
-            $file_contents = $this->data_filesystem->read($file);
+            $file_contents = $this->source_filesystem->read($file);
 
             if ($file_contents) {
 
@@ -132,8 +136,12 @@ class StandardData implements \IteratorAggregate, DataInterface
 
     public function move($source, $target)
     {
-        $this->data_filesystem->createDir(dirname($target));
+        $source = '/data/' . $source;
 
-        $this->data_filesystem->rename($source, $target);
+        $target = '/data/' . $target;
+
+        $this->source_filesystem->createDir(dirname($target));
+
+        $this->source_filesystem->rename($source, $target);
     }
 }

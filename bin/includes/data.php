@@ -5,7 +5,7 @@ use Wright\Extensions\Twig;
 
 $container->bind(DataInterface::class, StandardData::class, [
 
-        'data_filesystem' => $container->get('data_filesystem'),
+        'source_filesystem' => $container->get('source_filesystem'),
 
         'yaml' => $container->definition(Yaml::class)
     ]);
