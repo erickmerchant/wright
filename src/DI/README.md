@@ -33,7 +33,7 @@ Get is used to grab a definition and pass it in as an argument to another defint
 $container->bind(FooInterface::class, SomethingFoo::class);
 
 $container->bind(BarInterface::class, SomethingBar::class, [
-    $container->get(FooInterface::class)
+    'fooParam' => $container->get(FooInterface::class)
 ]);
 ```
 
@@ -43,7 +43,7 @@ Definition is a convenience method. It creates a new Definition and returns it, 
 
 ```php
 $container->bind(BarInterface::class, SomethingBar::class, [
-    $container->definition(SomethingFoo::class)
+    'fooParam' => $container->definition(SomethingFoo::class)
 ]);
 ```
 
@@ -53,7 +53,7 @@ Resolvable is another convenience method. You pass it a closure that should retu
 
 ```php
 $container->bind(BarInterface::class, SomethingBar::class, [
-    $container->resolvable(function(){
+    'fooParam' => $container->resolvable(function(){
 
         return new SomethingFoo;
     }]
