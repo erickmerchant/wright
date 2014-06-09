@@ -184,8 +184,6 @@ class Schema
 
     protected function setupPages()
     {
-        $page_insert = $this->connection->prepare("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)");
-
         $sitemap_settings = $this->settings->read('sitemap');
 
         $old_permalinks_settings = $this->settings->read('old-permalinks');
@@ -195,7 +193,7 @@ class Schema
             $old_permalinks_settings = [];
         }
 
-        $insert_page_fn = function ($permalink_pattern, $settings, $fields, $node_id = 0) use ($page_insert, $old_permalinks_settings) {
+        $insert_page_fn = function ($permalink_pattern, $settings, $fields, $node_id = 0) use ($old_permalinks_settings) {
 
             if (substr($permalink_pattern, -1) == '/' || substr($permalink_pattern, -4) == 'html') {
 
@@ -210,12 +208,12 @@ class Schema
 
             $settings['middleware'] = isset($settings['middleware']) ? json_encode($settings['middleware']) : '';
 
-            $page_insert->execute([
-                ':permalink' => $permalink,
-                ':type' => $type,
-                ':node_id' => $node_id,
-                ':template' => $settings['template'],
-                ':middleware' => $settings['middleware']
+            $this->connection->perform("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)", [
+                'permalink' => $permalink,
+                'type' => $type,
+                'node_id' => $node_id,
+                'template' => $settings['template'],
+                'middleware' => $settings['middleware']
             ]);
 
             foreach ($old_permalinks_settings as $old_url => $new_url) {
@@ -226,12 +224,12 @@ class Schema
 
                 if ($new_url == $permalink) {
 
-                    $page_insert->execute([
-                        ':permalink' => $old_url,
-                        ':type' => 'old',
-                        ':node_id' => $node_id,
-                        ':template' => $settings['template'],
-                        ':middleware' => $settings['middleware']
+                    $this->connection->perform("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)", [
+                        'permalink' => $old_url,
+                        'type' => 'old',
+                        'node_id' => $node_id,
+                        'template' => $settings['template'],
+                        'middleware' => $settings['middleware']
                     ]);
                 }
             }
