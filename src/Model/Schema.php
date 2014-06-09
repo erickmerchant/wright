@@ -92,7 +92,7 @@ class Schema
                 $path = $directory . '/' . $file;
             }
 
-            $node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = '$path' LIMIT 1");
+            $node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = :path LIMIT 1", ['path' => $path]);
 
             if ($node_query) {
 
@@ -114,7 +114,7 @@ class Schema
 
                 if ($directory) {
 
-                    $parent_node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = '$directory' LIMIT 1");
+                    $parent_node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = :path LIMIT 1", ['path' => $directory]);
 
                     if ($parent_node_query) {
 
