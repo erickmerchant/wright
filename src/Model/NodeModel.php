@@ -75,7 +75,7 @@ class NodeModel
 
     public function next()
     {
-        $row = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE published_on > :published_on AND parent_node_id = :parent_node_id ORDER BY published_on LIMIT 1", ['parent_node_id' => $this->parent_node_id, 'published_on' => $this->published_on]);
+        $row = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE (published_on > :published_on OR (published_on = :published_on AND node_id > :node_id)) AND parent_node_id = :parent_node_id ORDER BY published_on, node_id LIMIT 1", ['parent_node_id' => $this->parent_node_id, 'published_on' => $this->published_on, 'node_id' => $this->node_id]);
 
         if ($row) {
             return new self($row['node_id'], $this->connection);
@@ -84,7 +84,7 @@ class NodeModel
 
     public function previous()
     {
-        $row = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE published_on < :published_on AND parent_node_id = :parent_node_id ORDER BY published_on DESC LIMIT 1", ['parent_node_id' => $this->parent_node_id, 'published_on' => $this->published_on]);
+        $row = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE (published_on < :published_on OR (published_on = :published_on AND node_id < :node_id)) AND parent_node_id = :parent_node_id ORDER BY published_on DESC, node_id DESC LIMIT 1", ['parent_node_id' => $this->parent_node_id, 'published_on' => $this->published_on, 'node_id' => $this->node_id]);
 
         if ($row) {
             return new self($row['node_id'], $this->connection);
