@@ -1,5 +1,5 @@
 <?php namespace Wright\Hooks;
 
-$container->bind(HooksManager::class, HooksManager::class);
+$container->bind(HooksManagerInterface::class, HooksManager::class);
 
-$container->alias(HooksManager::class, 'hooks');
+$container->alias(HooksManagerInterface::class, 'hooks');

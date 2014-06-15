@@ -2,7 +2,7 @@
 
 use Aura\Sql\ExtendedPdo;
 
-$container->bind(Schema::class, null, [
+$container->bind(SchemaInterface::class, Schema::class, [
     'connection' => $container->resolvable(function () {
         return new ExtendedPdo('sqlite::memory:');
     })

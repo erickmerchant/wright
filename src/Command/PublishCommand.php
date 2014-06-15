@@ -1,10 +1,10 @@
 <?php namespace Wright\Command;
 
 use Wright\View\ViewInterface;
-use Wright\Model\Schema;
-use Wright\Hooks\HooksManager;
+use Wright\Model\SchemaInterface;
+use Wright\Hooks\HooksManagerInterface;
 use Wright\Settings\SettingsInterface;
-use Wright\Middleware\MiddlewareManager;
+use Wright\Middleware\MiddlewareManagerInterface;
 use Wright\Model\SiteModel;
 use Wright\Model\PageModel;
 use Aura\Cli\Status;
@@ -27,7 +27,7 @@ class PublishCommand implements CommandInterface
 
     protected $settings;
 
-    public function __construct(HooksManager $hooks, FilesystemInterface $source_filesystem, FilesystemInterface $site_filesystem, Schema $schema, MiddlewareManager $middleware, SettingsInterface $settings, ViewInterface $view)
+    public function __construct(HooksManagerInterface $hooks, FilesystemInterface $source_filesystem, FilesystemInterface $site_filesystem, SchemaInterface $schema, MiddlewareManagerInterface $middleware, SettingsInterface $settings, ViewInterface $view)
     {
         $this->source_filesystem = $source_filesystem;
 

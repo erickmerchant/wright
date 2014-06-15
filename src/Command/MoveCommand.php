@@ -3,7 +3,7 @@
 use Aura\Cli\Status;
 use Aura\Cli\Stdio;
 use Wright\Data\DataInterface;
-use Wright\Hooks\HooksManager;
+use Wright\Hooks\HooksManagerInterface;
 
 class MoveCommand implements CommandInterface
 {
@@ -11,7 +11,7 @@ class MoveCommand implements CommandInterface
 
     protected $hooks;
 
-    public function __construct(HooksManager $hooks, DataInterface $data)
+    public function __construct(HooksManagerInterface $hooks, DataInterface $data)
     {
         $this->data = $data;
 

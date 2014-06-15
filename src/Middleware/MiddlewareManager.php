@@ -2,7 +2,7 @@
 
 use Wright\Model\NodeModel;
 
-class MiddlewareManager
+class MiddlewareManager implements MiddlewareManagerInterface
 {
     protected $middleware = [];
 

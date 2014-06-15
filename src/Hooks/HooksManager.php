@@ -1,6 +1,6 @@
 <?php namespace Wright\Hooks;
 
-class HooksManager
+class HooksManager implements HooksManagerInterface
 {
     protected $hooks = [];
 

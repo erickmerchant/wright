@@ -4,7 +4,7 @@ use Wright\Data\DataInterface;
 use Wright\Settings\SettingsInterface;
 use Aura\Sql\ExtendedPdoInterface;
 
-class Schema
+class Schema implements SchemaInterface
 {
     protected $connection;
 

@@ -1,5 +1,5 @@
 <?php namespace Wright\Middleware;
 
-$container->bind(MiddlewareManager::class);
+$container->bind(MiddlewareManagerInterface::class, MiddlewareManager::class);
 
-$container->alias(MiddlewareManager::class, 'middleware');
+$container->alias(MiddlewareManagerInterface::class, 'middleware');
