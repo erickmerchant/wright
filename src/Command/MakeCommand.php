@@ -57,7 +57,7 @@ class MakeCommand implements CommandInterface
     public function execute(Stdio $stdio, array $params = [])
     {
         if (strpos($params['--target'], 'data/') !== 0) {
-            throw new \DomainException('The --target must be in the data directory.');
+            $params['--target'] = 'data/';
         }
 
         $params['--target'] = substr($params['--target'], strlen('data/'));
