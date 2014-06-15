@@ -23,7 +23,7 @@ class Schema implements SchemaInterface
         $this->settings = $settings;
     }
 
-    public function setup()
+    protected function setup()
     {
         $this->setupTables();
 
