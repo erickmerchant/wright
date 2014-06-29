@@ -13,7 +13,7 @@ class MiddlewareManager implements MiddlewareManagerInterface
 
     public function call($name, NodeModel $node)
     {
-        if(!isset($this->middleware[$name])) {
+        if (!isset($this->middleware[$name])) {
 
             throw new \OutOfBoundsException('The middleware '.$name.' is not set.');
         }

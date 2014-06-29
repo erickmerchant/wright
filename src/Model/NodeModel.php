@@ -33,7 +33,7 @@ class NodeModel
 
             $fields = json_decode($row['fields'], true);
 
-            $this->fields = array_merge($this->fields, (array)$fields);
+            $this->fields = array_merge($this->fields, (array) $fields);
 
             $this->fields['published_on'] = date_create_from_format('Y-m-d', $row['published_on']);
         }

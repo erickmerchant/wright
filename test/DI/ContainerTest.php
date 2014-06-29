@@ -45,7 +45,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $container = new Container;
 
-        $definition = $container->resolvable(function(){});
+        $definition = $container->resolvable(function () {});
 
         $this->assertInstanceOf(Resolvable::class, $definition);
     }
@@ -104,7 +104,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
         $definition = $container->bind(Stub\FooInterface::class, Stub\Foo::class);
 
-        $closure = function(){};
+        $closure = function () {};
 
         $container->after(Stub\FooInterface::class, $closure);
 

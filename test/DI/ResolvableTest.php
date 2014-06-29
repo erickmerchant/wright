@@ -15,7 +15,7 @@ class ResolvableTest extends \PHPUnit_Framework_TestCase
     {
         $container = new Container;
 
-        $closure = function(){};
+        $closure = function () {};
 
         $definition = new Resolvable($container, $closure);
 
@@ -29,7 +29,7 @@ class ResolvableTest extends \PHPUnit_Framework_TestCase
     {
         $container = new Container;
 
-        $closure = function(){ return new Stub\Foo; };
+        $closure = function () { return new Stub\Foo; };
 
         $definition = new Resolvable($container, $closure);
 

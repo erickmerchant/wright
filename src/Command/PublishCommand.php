@@ -6,7 +6,6 @@ use Wright\Hooks\HooksManagerInterface;
 use Wright\Settings\SettingsInterface;
 use Wright\Middleware\MiddlewareManagerInterface;
 use Wright\Model\SiteModel;
-use Wright\Model\PageModel;
 use Aura\Cli\Status;
 use Aura\Cli\Stdio;
 use League\Flysystem\FilesystemInterface;
@@ -90,11 +89,11 @@ class PublishCommand implements CommandInterface
                     $page_model->permalink .= 'index.html';
                 }
 
-                if($page_model->middleware) {
+                if ($page_model->middleware) {
 
                     $page_model->middleware = json_decode($page_model->middleware);
 
-                    foreach($page_model->middleware as $middleware) {
+                    foreach ($page_model->middleware as $middleware) {
 
                         $page_model = $this->middleware->call($middleware, $page_model);
                     }

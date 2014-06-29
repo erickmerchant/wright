@@ -14,8 +14,8 @@ interface SettingsInterface
     /**
      * Writes a settings file.
      *
-     * @param  string  $file     The file name
-     * @param  array   $settings settings to write to the file.
+     * @param  string $file     The file name
+     * @param  array  $settings settings to write to the file.
      * @return void
      */
     public function write($file, $settings);

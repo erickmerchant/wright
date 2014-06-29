@@ -11,9 +11,9 @@ class HooksManager implements HooksManagerInterface
 
     public function call($hook, array $args = [])
     {
-        if(isset($this->hooks[$hook]))
-        {
-            foreach($this->hooks[$hook] as $hook) {
+        if (isset($this->hooks[$hook])) {
+            
+            foreach ($this->hooks[$hook] as $hook) {
 
                 call_user_func_array($hook, $args);
             }

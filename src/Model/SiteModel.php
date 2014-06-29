@@ -20,8 +20,7 @@ class SiteModel
 
         $page_ids = $this->connection->fetchCol('SELECT page_id FROM pages');
 
-        foreach($page_ids as $page_id)
-        {
+        foreach ($page_ids as $page_id) {
             $result[] = new PageModel($page_id, $this->connection);
         }
 

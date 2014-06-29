@@ -57,8 +57,8 @@ class StandardData implements \IteratorAggregate, DataInterface
     /**
      * Writes a data file.
      *
-     * @param  string  $file  The file name
-     * @param  array   $data  Data to write to the file.
+     * @param  string $file The file name
+     * @param  array  $data Data to write to the file.
      * @return void
      */
     public function write($file, $data)

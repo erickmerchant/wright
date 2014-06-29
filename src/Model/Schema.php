@@ -36,8 +36,7 @@ class Schema implements SchemaInterface
 
     public function getConnection()
     {
-        if(!$this->is_setup)
-        {
+        if (!$this->is_setup) {
             $this->setup();
         }
 

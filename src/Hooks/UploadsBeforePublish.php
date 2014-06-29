@@ -20,7 +20,7 @@ class UploadsBeforePublish
     protected $site_directory;
 
     /**
-     * @param ImagineInterface     $imagine     Imagine for working with images
+     * @param ImagineInterface $imagine Imagine for working with images
      */
     public function __construct(ImagineInterface $imagine, SettingsInterface $settings, $data_directory, $site_directory)
     {
