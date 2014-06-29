@@ -80,71 +80,71 @@ class Schema implements SchemaInterface
         );
     }
 
+    protected function insertNode($directory, $file) {
+
+        $path = $file;
+
+        if ($directory && $directory != '.') {
+
+            $path = $directory . '/' . $file;
+        }
+
+        $node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = :path LIMIT 1", ['path' => $path]);
+
+        if ($node_query) {
+
+            $result = $node_query['node_id'];
+
+        } else {
+
+            $match = preg_match('/^(.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.)([^\/]*)$/', $file, $matches);
+
+            $published_on = $match ? new \DateTime(trim($matches[2], '.')) : new \DateTime();
+
+            $matches = [];
+
+            preg_match('/^(.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.|[0-9]+\.|)([^\/]*)$/', $file, $matches);
+
+            $slug = trim($matches[3], '/');
+
+            $parent_node_id = 0;
+
+            if ($directory) {
+
+                $parent_node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = :path LIMIT 1", ['path' => $directory]);
+
+                if ($parent_node_query) {
+
+                    $parent_node_id = $parent_node_query['node_id'];
+
+                } else {
+
+                    $this->connection->perform("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)", [
+                        'parent_node_id' => 0,
+                        'path' => $directory,
+                        'slug' => '',
+                        'published_on' => $published_on->format('Y-m-d')
+                    ]);
+
+                    $parent_node_id = $this->connection->lastInsertId();
+                }
+            }
+
+            $this->connection->perform("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)", [
+                'parent_node_id' => $parent_node_id,
+                'path' => $path,
+                'slug' => $slug,
+                'published_on' => $published_on->format('Y-m-d')
+            ]);
+
+            $result = $this->connection->lastInsertId();
+        }
+
+        return $result;
+    }
+
     protected function setupNodes()
     {
-        $insert_node_fn = function ($directory, $file) {
-
-            $path = $file;
-
-            if ($directory && $directory != '.') {
-
-                $path = $directory . '/' . $file;
-            }
-
-            $node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = :path LIMIT 1", ['path' => $path]);
-
-            if ($node_query) {
-
-                $result = $node_query['node_id'];
-
-            } else {
-
-                $match = preg_match('/^(.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.)([^\/]*)$/', $file, $matches);
-
-                $published_on = $match ? new \DateTime(trim($matches[2], '.')) : new \DateTime();
-
-                $matches = [];
-
-                preg_match('/^(.*?\/)?([0-9]{4}-[0-9]{2}-[0-9]{2}\.|[0-9]+\.|)([^\/]*)$/', $file, $matches);
-
-                $slug = trim($matches[3], '/');
-
-                $parent_node_id = 0;
-
-                if ($directory) {
-
-                    $parent_node_query = $this->connection->fetchOne("SELECT node_id FROM nodes WHERE path = :path LIMIT 1", ['path' => $directory]);
-
-                    if ($parent_node_query) {
-
-                        $parent_node_id = $parent_node_query['node_id'];
-
-                    } else {
-
-                        $this->connection->perform("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)", [
-                            'parent_node_id' => 0,
-                            'path' => $directory,
-                            'slug' => '',
-                            'published_on' => $published_on->format('Y-m-d')
-                        ]);
-
-                        $parent_node_id = $this->connection->lastInsertId();
-                    }
-                }
-
-                $this->connection->perform("INSERT INTO nodes (parent_node_id, path, slug, published_on) VALUES (:parent_node_id, :path, :slug, :published_on)", [
-                    'parent_node_id' => $parent_node_id,
-                    'path' => $path,
-                    'slug' => $slug,
-                    'published_on' => $published_on->format('Y-m-d')
-                ]);
-
-                $result = $this->connection->lastInsertId();
-            }
-
-            return $result;
-        };
-
         foreach ($this->data as $path) {
 
             $directory = trim(dirname($path), '/');
@@ -155,7 +155,7 @@ class Schema implements SchemaInterface
 
             $json_fields = json_encode($fields);
 
-            $node_id = $insert_node_fn($directory, $file);
+            $node_id = $this->insertNode($directory, $file);
 
             $this->connection->perform("UPDATE nodes SET fields = :fields WHERE node_id = :node_id", [
                 'fields' => $json_fields,
@@ -170,7 +170,7 @@ class Schema implements SchemaInterface
 
                     $file = trim(substr($related, strrpos($related, '/')+1), '/');
 
-                    $related_node_id = $insert_node_fn($directory, $file);
+                    $related_node_id = $this->insertNode($directory, $file);
 
                     $this->connection->perform("INSERT INTO relationships (node_id, related_node_id) VALUES (:node_id, :related_node_id)", [
                         'node_id' => $node_id,
