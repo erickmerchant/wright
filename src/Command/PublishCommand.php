@@ -85,13 +85,9 @@ class PublishCommand implements CommandInterface
 
             foreach ($site->pages() as $page_model) {
 
-                $fields = $defaults + ['page' => $page_model];
-
                 $permalink = $page_model->permalink;
 
-                if (substr($permalink, -1) == '/') {
-                    $permalink .= 'index.html';
-                }
+                $pages = [$permalink => $defaults + ['page' => $page_model]];
 
                 if ($page_model->middleware) {
 
@@ -99,13 +95,20 @@ class PublishCommand implements CommandInterface
 
                     foreach ($page_model->middleware as $middleware) {
 
-                        $fields = $this->middleware->call($middleware, $fields);
+                        $pages = $this->middleware->call($middleware, $pages);
                     }
                 }
 
-                $response = $this->view->render($page_model->template, $fields);
+                foreach ($pages as $permalink => $page) {
 
-                $this->site_filesystem->put($permalink, $response);
+                    if (substr($permalink, -1) == '/') {
+                        $permalink .= 'index.html';
+                    }
+
+                    $response = $this->view->render($page_model->template, $page);
+
+                    $this->site_filesystem->put($permalink, $response);
+                }
             }
         }
 
