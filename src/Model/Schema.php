@@ -21,6 +21,8 @@ class Schema implements SchemaInterface
         $this->data = $data;
 
         $this->settings = $settings;
+
+        $this->old_permalinks_settings = $this->settings->read('old-permalinks');
     }
 
     protected function setup()
@@ -181,41 +183,32 @@ class Schema implements SchemaInterface
         }
     }
 
-    protected function setupPages()
-    {
-        $sitemap_settings = $this->settings->read('sitemap');
+    protected function insertPage($permalink_pattern, $settings, $fields, $node_id = 0) {
 
-        $old_permalinks_settings = $this->settings->read('old-permalinks');
+        if (substr($permalink_pattern, -1) == '/' || substr($permalink_pattern, -4) == 'html') {
 
-        if (!is_array($old_permalinks_settings)) {
+            $type = 'html';
 
-            $old_permalinks_settings = [];
+        } elseif (isset($settings['type'])) {
+
+            $type = $settings['type'];
         }
 
-        $insert_page_fn = function ($permalink_pattern, $settings, $fields, $node_id = 0) use ($old_permalinks_settings) {
+        $permalink = $this->makePermalink($permalink_pattern, $fields);
 
-            if (substr($permalink_pattern, -1) == '/' || substr($permalink_pattern, -4) == 'html') {
+        $settings['middleware'] = isset($settings['middleware']) ? json_encode($settings['middleware']) : '';
 
-                $type = 'html';
+        $this->connection->perform("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)", [
+            'permalink' => $permalink,
+            'type' => $type,
+            'node_id' => $node_id,
+            'template' => $settings['template'],
+            'middleware' => $settings['middleware']
+        ]);
 
-            } elseif (isset($settings['type'])) {
+        if (is_array($this->old_permalinks_settings)) {
 
-                $type = $settings['type'];
-            }
-
-            $permalink = $this->makePermalink($permalink_pattern, $fields);
-
-            $settings['middleware'] = isset($settings['middleware']) ? json_encode($settings['middleware']) : '';
-
-            $this->connection->perform("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)", [
-                'permalink' => $permalink,
-                'type' => $type,
-                'node_id' => $node_id,
-                'template' => $settings['template'],
-                'middleware' => $settings['middleware']
-            ]);
-
-            foreach ($old_permalinks_settings as $old_url => $new_url) {
+            foreach ($this->old_permalinks_settings as $old_url => $new_url) {
 
                 $old_url = ltrim($old_url, '/');
 
@@ -232,7 +225,12 @@ class Schema implements SchemaInterface
                     ]);
                 }
             }
-        };
+        }
+    }
+
+    protected function setupPages()
+    {
+        $sitemap_settings = $this->settings->read('sitemap');
 
         foreach ($sitemap_settings as $permalink_pattern => $settings) {
 
@@ -272,12 +270,12 @@ class Schema implements SchemaInterface
 
                     $fields['day'] = $day;
 
-                    $insert_page_fn($permalink_pattern, $settings, $fields, $node['node_id']);
+                    $this->insertPage($permalink_pattern, $settings, $fields, $node['node_id']);
                 }
 
             } else {
 
-                $insert_page_fn($permalink_pattern, $settings, $fields);
+                $this->insertPage($permalink_pattern, $settings, $fields);
             }
         }
     }
