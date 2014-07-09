@@ -21,7 +21,8 @@
         "twig/twig": "~1.14",
         "erusev/parsedown": "~1.0",
         "michelf/php-markdown": "~1.4",
-        "michelf/php-smartypants": "~1.6"
+        "michelf/php-smartypants": "~1.6",
+        "filp/whoops": "~1.0"
     },
     "bin": ["bin/wright"],
     "autoload": {

@@ -3,50 +3,29 @@
 
 use Wright\Application;
 use Wright\DI\Container;
-use Aura\Cli\CliFactory;
-use Aura\Cli\Status;
-
-error_reporting(E_ALL);
-
-set_error_handler(function($severity, $message, $filename, $lineno) {
-
-    if(error_reporting() & $severity)
-    {
-        throw new \ErrorException($message, 0, $severity, $filename, $lineno);
-    }
-});
-
-// chdir(__DIR__);
+use Whoops\Run;
+use Whoops\Handler\PlainTextHandler;
 
 require_once './vendor/autoload.php';
 
-try
+$whoops = new Run;
+
+$whoops->pushHandler(new PlainTextHandler);
+
+$whoops->register();
+
+$container = new Container;
+
+foreach(glob(__DIR__.'/includes/*.php') as $include)
 {
-    $container = new Container;
-
-    foreach(glob(__DIR__.'/includes/*.php') as $include)
-    {
-        require_once $include;
-    }
-
-    foreach(glob(getcwd().'/includes/*.php') as $include)
-    {
-        require_once $include;
-    }
-
-    $application = $container->resolve(Application::class);
-
-    $application->run();
+    require_once $include;
 }
-catch(\Exception $e)
+
+foreach(glob(getcwd().'/includes/*.php') as $include)
 {
-    $i = 0;
-
-    do
-    {
-        echo '[' . get_class($e) . '] ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine();
-    }
-    while($e = $e->getPrevious());
-
-    exit(STATUS::FAILURE);
+    require_once $include;
 }
+
+$application = $container->resolve(Application::class);
+
+$application->run();
