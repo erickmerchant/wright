@@ -6,5 +6,5 @@ interface MiddlewareManagerInterface
 {
     public function register($name, callable $callable);
 
-    public function call($name, NodeModel $node);
+    public function call($name, array $pages, array $arguments = []);
 }

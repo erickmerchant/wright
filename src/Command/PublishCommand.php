@@ -93,9 +93,11 @@ class PublishCommand implements CommandInterface
 
                     $page_model->middleware = json_decode($page_model->middleware);
 
-                    foreach ($page_model->middleware as $middleware) {
+                    foreach ($page_model->middleware as $name => $arguments) {
 
-                        $pages = $this->middleware->call($middleware, $pages);
+                        $arguments = $arguments ? $arguments : [];
+
+                        $pages = $this->middleware->call($name, $pages, $arguments);
                     }
                 }
 
