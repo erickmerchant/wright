@@ -125,6 +125,11 @@ class NodeModel
         return $collection;
     }
 
+    public function __set($key, $value)
+    {
+        $this->fields[$key] = $value;
+    }
+
     public function __get($key)
     {
         if (isset($this->fields[$key])) {
@@ -134,10 +139,6 @@ class NodeModel
 
     public function __isset($key)
     {
-        if (isset($this->fields[$key])) {
-            return true;
-        }
-
-        return false;
+        return isset($this->fields[$key]);
     }
 }
