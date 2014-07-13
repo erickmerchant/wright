@@ -56,9 +56,9 @@ class NodeModel
         }
     }
 
-    public function collection()
+    public function collection($offset = 0, $limit = 100)
     {
-        $query = $this->connection->fetchAll("SELECT node_id FROM nodes WHERE parent_node_id = :parent_node_id ORDER BY published_on DESC, slug ASC", ['parent_node_id' => $this->node_id]);
+        $query = $this->connection->fetchAll("SELECT node_id FROM nodes WHERE parent_node_id = :parent_node_id ORDER BY published_on DESC, slug ASC LIMIT :offset, :limit", ['parent_node_id' => $this->node_id, 'offset' => $offset, 'limit' => $limit]);
 
         $collection = [];
 
