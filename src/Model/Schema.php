@@ -21,8 +21,6 @@ class Schema implements SchemaInterface
         $this->data = $data;
 
         $this->settings = $settings;
-
-        $this->old_permalinks_settings = $this->settings->read('old-permalinks');
     }
 
     protected function setup()
@@ -205,27 +203,6 @@ class Schema implements SchemaInterface
             'template' => $settings['template'],
             'middleware' => $settings['middleware']
         ]);
-
-        if (is_array($this->old_permalinks_settings)) {
-
-            foreach ($this->old_permalinks_settings as $old_url => $new_url) {
-
-                $old_url = ltrim($old_url, '/');
-
-                $new_url = ltrim($new_url, '/');
-
-                if ($new_url == $permalink) {
-
-                    $this->connection->perform("INSERT INTO pages (permalink, type, node_id, template, middleware) VALUES (:permalink, :type, :node_id, :template, :middleware)", [
-                        'permalink' => $old_url,
-                        'type' => 'old',
-                        'node_id' => $node_id,
-                        'template' => $settings['template'],
-                        'middleware' => $settings['middleware']
-                    ]);
-                }
-            }
-        }
     }
 
     protected function setupPages()

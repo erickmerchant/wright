@@ -10,6 +10,8 @@ $container->alias(MiddlewareManagerInterface::class, 'middleware');
 $container->after('middleware', function($middleware){
 
     $middleware->register('first', new FirstMiddleware);
-    
+
     $middleware->register('paginate', new PaginateMiddleware);
+
+    $middleware->register('redirect', new RedirectMiddleware);
 });

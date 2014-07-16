@@ -48,7 +48,7 @@ The data directory is where your content lives. You use `./wright make` to add f
 
 ### settings/
 
-Settings for defaults, old permalinks, and your sitemap. (see Settings below)
+Settings for defaults and your sitemap. (see Settings below)
 
 ### templates/
 
