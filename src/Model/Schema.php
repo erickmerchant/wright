@@ -45,7 +45,7 @@ class Schema implements SchemaInterface
 
     protected function setupTables()
     {
-        $this->connection->query(
+        $this->connection->exec(
             'CREATE TABLE IF NOT EXISTS
                 nodes (
                     node_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +57,7 @@ class Schema implements SchemaInterface
                 )'
         );
 
-        $this->connection->query(
+        $this->connection->exec(
             'CREATE TABLE IF NOT EXISTS
                 relationships (
                     node_id INTEGER,
@@ -65,9 +65,9 @@ class Schema implements SchemaInterface
                 )'
         );
 
-        $this->connection->query('CREATE UNIQUE INDEX relationships_uk_1 ON relationships(node_id, related_node_id);');
+        $this->connection->exec('CREATE UNIQUE INDEX relationships_uk_1 ON relationships(node_id, related_node_id);');
 
-        $this->connection->query(
+        $this->connection->exec(
             'CREATE TABLE IF NOT EXISTS
                 pages (
                     page_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,8 +80,8 @@ class Schema implements SchemaInterface
         );
     }
 
-    protected function insertNode($directory, $file) {
-
+    protected function insertNode($directory, $file)
+    {
         $path = $file;
 
         if ($directory && $directory != '.') {
@@ -181,8 +181,8 @@ class Schema implements SchemaInterface
         }
     }
 
-    protected function insertPage($permalink_pattern, $settings, $fields, $node_id = 0) {
-
+    protected function insertPage($permalink_pattern, $settings, $fields, $node_id = 0)
+    {
         if (substr($permalink_pattern, -1) == '/' || substr($permalink_pattern, -4) == 'html') {
 
             $type = 'html';
@@ -226,11 +226,11 @@ class Schema implements SchemaInterface
 
                     $settings['data'] = substr($settings['data'], 0, strlen($settings['data']) - 2);
 
-                    $nodes = $this->connection->query("SELECT child_nodes.node_id, child_nodes.slug, child_nodes.published_on, child_nodes.fields FROM nodes as child_nodes LEFT JOIN nodes as parent_nodes ON child_nodes.parent_node_id = parent_nodes.node_id WHERE parent_nodes.path = '$settings[data]'");
+                    $nodes = $this->connection->fetchAll("SELECT child_nodes.node_id, child_nodes.slug, child_nodes.published_on, child_nodes.fields, child_nodes.path FROM nodes as child_nodes LEFT JOIN nodes as parent_nodes ON child_nodes.parent_node_id = parent_nodes.node_id WHERE parent_nodes.path = :path", ['path' => $settings['data']]);
 
                 } else {
 
-                    $nodes = $nodes = $this->connection->query("SELECT node_id, slug, published_on, fields FROM nodes WHERE path = '$settings[data]'");
+                    $nodes = $nodes = $this->connection->fetchAll("SELECT node_id, slug, published_on, fields, path FROM nodes WHERE path = :path", ['path' => $settings['data']]);
                 }
 
                 foreach ($nodes as $node) {
