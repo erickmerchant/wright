@@ -26,9 +26,6 @@ class MakeCommand implements CommandInterface
     public function getOptions()
     {
         return [
-            'target,t:' => [
-                'description' => 'the collection to add the entry to'
-            ],
             'related,r*:' => [
                 'description' => 'other entries that this one is related to'
             ],
@@ -44,6 +41,9 @@ class MakeCommand implements CommandInterface
     public function getArguments()
     {
         return [
+            'target' => [
+                'description' => 'the collection to add the entry to'
+            ],
             'title' => [
                 'description' =>'the title of the entry'
             ],
@@ -56,11 +56,11 @@ class MakeCommand implements CommandInterface
 
     public function execute(Stdio $stdio, array $params = [])
     {
-        if (strpos($params['--target'], 'data/') !== 0) {
-            $params['--target'] = 'data/';
+        if (strpos($params['target'], 'data/') !== 0) {
+            throw new \DomainException('The target must be in the data directory.');
         }
 
-        $params['--target'] = substr($params['--target'], strlen('data/'));
+        $params['target'] = substr($params['target'], strlen('data/'));
 
         if (!empty($params['--related'])) {
 
@@ -86,9 +86,9 @@ class MakeCommand implements CommandInterface
 
         $file = '';
 
-        if ($params['--target']) {
+        if ($params['target']) {
 
-            $file = trim($params['--target'], '/') . '/';
+            $file = trim($params['target'], '/') . '/';
         }
 
         if ($params['--date']) {
